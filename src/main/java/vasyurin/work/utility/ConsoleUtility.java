@@ -1,6 +1,5 @@
 package vasyurin.work.utility;
 
-
 import lombok.Getter;
 import lombok.Setter;
 import vasyurin.work.controllers.AuthController;
@@ -8,8 +7,10 @@ import vasyurin.work.controllers.CatalogController;
 import vasyurin.work.controllers.SaveController;
 import vasyurin.work.dto.Product;
 import vasyurin.work.dto.User;
-import vasyurin.work.services.AuditService;
+import vasyurin.work.services.AuditServiceImpl;
 import vasyurin.work.services.MetricsService;
+import vasyurin.work.services.security.SecurityService;
+import vasyurin.work.services.security.SecurityServiceImpl;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,10 +22,11 @@ public class ConsoleUtility {
     private static final ConsoleUtility instance = new ConsoleUtility();
     public static final Scanner SC = new Scanner(System.in);
 
-    public final CatalogController catalogController;
-    public final SaveController saveController;
-    public final AuditService auditService;
-    public final MetricsService metricsService;
+    private final CatalogController catalogController;
+    private final SaveController saveController;
+    private final AuditServiceImpl auditService;
+    private final MetricsService metricsService;
+    private final SecurityService securityService;
 
     @Setter
     @Getter
@@ -33,52 +35,58 @@ public class ConsoleUtility {
     private ConsoleUtility() {
         this.catalogController = CatalogController.getInstance();
         this.saveController = SaveController.getInstance();
-        this.auditService = AuditService.getInstance();
+        this.auditService = AuditServiceImpl.getInstance();
         this.metricsService = MetricsService.getInstance();
+        this.securityService = SecurityServiceImpl.getInstance();
     }
 
     public void start() {
         System.out.println("Добро пожаловать в магазин!");
 
         while (!Thread.currentThread().isInterrupted()) {
-            System.out.println();
-            System.out.println("1. Просмотреть каталог");
-            System.out.println("2. Добавить товар");
-            System.out.println("3. Поиск");
-            System.out.println("4. Войти в другой аккаунт");
-            System.out.println("5. Выйти");
-            System.out.println("Введите номер действия:");
+            System.out.println("""
+            
+            ╔══════════════════════════════╗
+            ║         ГЛАВНОЕ МЕНЮ         ║
+            ╠══════════════════════════════╣
+            ║ 1. Просмотреть каталог       ║
+            ║ 2. Добавить товар            ║
+            ║ 3. Поиск товара              ║
+            ║ 4. Войти в аккаунт           ║
+            ║ 5. Выйти из аккаунта         ║
+            ║ 0. Выход                     ║
+            ╚══════════════════════════════╝
+            """);
+
+            System.out.print("Введите номер действия: ");
 
             int choice = Integer.parseInt(SC.nextLine());
 
             switch (choice) {
-                case 1:
+                case 1 -> {
                     viewCatalog();
-                    break;
-                case 2:
-                    addProduct();
-                    break;
-                case 3:
-                    searchProduct();
-                    break;
-                case 4:
-                    currentUser = authorizeUser();
-                    if (currentUser == null) {
-                        System.out.println("Авторизация не удалась. Завершение программы.");
-                        auditService.log(null, "Неудачная попытка входа");
-                        return;
-                    }
-                    auditService.log(currentUser, "Вход в систему");
-                    setCurrentUser(currentUser);
-                    System.out.println("Здравствуйте, " + currentUser.getUsername() + "! Ваша роль: " + currentUser.getRole());
-                    break;
-                case 5:
-                    Thread.currentThread().interrupt();
-                    break;
-                default:
-                    System.out.println("Неверный номер!");
+                    productSelection(catalogController.getAll());
+                }
+                case 2 -> addProduct();
+                case 3 -> searchProduct();
+                case 4 -> {if (authorize()) return;}
+                case 5 -> logOut();
+                case 0 -> Thread.currentThread().interrupt();
+                default -> System.out.println("Неверный номер!");
             }
         }
+    }
+
+    private boolean authorize() {
+        currentUser = authorizeUser();
+        if (currentUser == null) {
+            System.out.println("Авторизация не удалась. Завершение программы.");
+            auditService.log(null, "Неудачная попытка входа");
+            return true;
+        }
+        auditService.log(currentUser, "Вход в систему");
+        setCurrentUser(currentUser);
+        return false;
     }
 
     private User authorizeUser() {
@@ -98,11 +106,14 @@ public class ConsoleUtility {
         return null;
     }
 
+    private void logOut() {
+        currentUser = null;
+        System.out.println("Вы вышли из аккаунта");
+    }
     private void viewCatalog() {
         catalogController.getAll().stream()
                 .map(Product::toString)
                 .forEach(System.out::println);
-        productSelection(catalogController.getAll());
     }
 
     private void searchByName() {
@@ -151,99 +162,105 @@ public class ConsoleUtility {
         }
         while (true) {
 
+            System.out.print("""
+                    ╔══════════════════════════════╗
+                    ║        СПИСОК ТОВАРОВ        ║
+                    ╠══════════════════════════════╣
+                    """);
+
             for (int i = 0; i < products.size(); i++) {
-                System.out.println((i + 1) + ". " + products.get(i).getName());
+                System.out.printf("║ %-1d. %-25s ║%n", i + 1, products.get(i).getName());
             }
-            System.out.println((products.size() + 1) + ". Назад");
+            System.out.println("""
+                    ║ 0. Назад                     ║
+                    ╚══════════════════════════════╝
+                    """);
 
-            System.out.print("Выберите товар: ");
+            System.out.print("Выберите товар или нажмите 0, чтобы вернутся назад: ");
             int choice = Integer.parseInt(SC.nextLine());
-
 
             if (choice > 0 && choice <= products.size()) {
                 productSubmenu(Optional.of(products.get(choice - 1)));
-                break;
-            } else if (choice == products.size() + 1) {
+            } else if (choice == 0) {
                 return;
             }else {
                 System.out.println("Неверный выбор!");
             }
-
         }
-
     }
 
     private void productSubmenu(Optional<Product> product) {
-        while (true){
+        while (true) {
+            System.out.println("""
+                
+                ╔══════════════════════════════╗
+                ║      ДЕЙСТВИЯ С ТОВАРОМ      ║
+                ╠══════════════════════════════╣
+                ║ 1. Изменить товар            ║
+                ║ 2. Удалить товар             ║
+                ║ 0. Назад                     ║
+                ╚══════════════════════════════╝
+                """);
 
-            System.out.println(product);
-
-            System.out.println("1. Изменить товар");
-            System.out.println("2. Удалить товар");
-            System.out.println("3. Назад");
-
+            System.out.print("Выберите действие: ");
             int choice = Integer.parseInt(SC.nextLine());
 
             switch (choice) {
-                case 1:
-                    updateProduct(product);
-                    break;
-                case 2:
+                case 1 -> updateProduct(product);
+                case 2 -> {
                     deleteProduct(product);
-                    break;
-                case 3:
                     return;
-                default:
-                    System.out.println("Неверный номер!");
+                }
+                case 0 -> {
+                    viewCatalog();
+                    return;
+                }
+                default -> System.out.println("Неверный номер!");
             }
         }
-
     }
+
 
     private void updateProduct(Optional<Product> product) {
-        if (!isAdmin()) return;
+        if (!securityService.isAdmin(currentUser)) return;
 
-        while (true){
-            System.out.println("1. Изменить название");
-            System.out.println("2. Изменить описание");
-            System.out.println("3. Изменить категорию");
-            System.out.println("4. Изменить цену");
-            System.out.println("5. Изменить бренд");
-            System.out.println("6. Назад");
+        while (true) {
+            System.out.println("""
+                
+                ╔══════════════════════════════╗
+                ║       ИЗМЕНЕНИЕ ТОВАРА       ║
+                ╠══════════════════════════════╣
+                ║ 1. Изменить название         ║
+                ║ 2. Изменить описание         ║
+                ║ 3. Изменить категорию        ║
+                ║ 4. Изменить цену             ║
+                ║ 5. Изменить бренд            ║
+                ║ 0. Назад                     ║
+                ╚══════════════════════════════╝
+                """);
 
+            System.out.print("Выберите действие: ");
             int choice = Integer.parseInt(SC.nextLine());
 
             switch (choice) {
-                case 1:
-                    updateName(product);
-                    break;
-                case 2:
-                    updateDescription(product);
-                    break;
-                case 3:
-                    updateCategory(product);
-                    break;
-                case 4:
-                    updatePrice(product);
-                    break;
-                case 5:
-                    updateBrand(product);
-                    break;
-                case 6:
-                    return;
-                default:
-                    System.out.println("Неверный номер!");
+                case 1 -> updateName(product);
+                case 2 -> updateDescription(product);
+                case 3 -> updateCategory(product);
+                case 4 -> updatePrice(product);
+                case 5 -> updateBrand(product);
+                case 0 -> { return; }
+                default -> System.out.println("Неверный номер!");
             }
         }
-
     }
+
 
     private void updateName(Optional<Product> product) {
         System.out.println("Введите новое название товара: ");
         product.get().setName(SC.nextLine());
         saveController.update(product.get());
         System.out.println(product);
-        auditService.log(currentUser, "Изменение имени");
+        auditService.log(currentUser, "Изменение названия товара: " + product.get().getName());
     }
 
     private void updateDescription(Optional<Product> product) {
@@ -251,7 +268,7 @@ public class ConsoleUtility {
         product.get().setDescription(SC.nextLine());
         saveController.update(product.get());
         System.out.println(product);
-        auditService.log(currentUser, "Изменение описания");
+        auditService.log(currentUser, "Изменение описания: " + product.get().getDescription());
     }
 
     private void updateCategory(Optional<Product> product) {
@@ -259,7 +276,7 @@ public class ConsoleUtility {
         product.get().setCategory(SC.nextLine());
         saveController.update(product.get());
         System.out.println(product);
-        auditService.log(currentUser, "Изменение категории");
+        auditService.log(currentUser, "Изменение категории: " + product.get().getCategory());
     }
 
     private void updatePrice(Optional<Product> product) {
@@ -267,7 +284,7 @@ public class ConsoleUtility {
         product.get().setPrice(Integer.parseInt(SC.nextLine()));
         saveController.update(product.get());
         System.out.println(product);
-        auditService.log(currentUser, "Изменение цены");
+        auditService.log(currentUser, "Изменение цены: " + product.get().getPrice());
     }
 
     private void updateBrand(Optional<Product> product) {
@@ -275,19 +292,18 @@ public class ConsoleUtility {
         product.get().setBrand(SC.nextLine());
         saveController.update(product.get());
         System.out.println(product);
-        auditService.log(currentUser, "Изменение бренда");
+        auditService.log(currentUser, "Изменение бренда: " + product.get().getBrand());
     }
 
     private void deleteProduct(Optional<Product> product) {
-        if (!isAdmin()) return;
+        if (!securityService.isAdmin(currentUser)) return;
 
         saveController.delete(product.get());
-        auditService.log(currentUser, "Товар удалён");
+        auditService.log(currentUser, "Товар удалён: " + product.get().getName());
     }
 
     private void addProduct() {
-
-        if (!isAdmin()) return;
+        if (!securityService.isAdmin(currentUser)) return;
 
         Product product = new Product();
 
@@ -312,43 +328,31 @@ public class ConsoleUtility {
 
     private void searchProduct() {
         System.out.println("Выберите критерий поиска: ");
-        while (true){
+        while (true) {
+            System.out.println("""
+                
+                ╔══════════════════════════════╗
+                ║         ПОИСК ТОВАРОВ        ║
+                ╠══════════════════════════════╣
+                ║ 1. По названию               ║
+                ║ 2. По категории              ║
+                ║ 3. По цене                   ║
+                ║ 4. По бренду                 ║
+                ║ 0. Назад                     ║
+                ╚══════════════════════════════╝
+                """);
 
-            System.out.println("1. Поиск по названию");
-            System.out.println("2. Поиск по категории");
-            System.out.println("3. Поиск по цене");
-            System.out.println("4. Поиск по бренду");
-            System.out.println("5. Назад");
-
+            System.out.print("Введите номер: ");
             int choice = Integer.parseInt(SC.nextLine());
 
             switch (choice) {
-                case 1:
-                    searchByName();
-                    break;
-                case 2:
-                    searchByCategory();
-                    break;
-                case 3:
-                    searchByPrice();
-                    break;
-                case 4:
-                    searchByBrand();
-                    break;
-                case 5:
-                    return;
-                default:
-                    System.out.println("Неверный номер!");
+                case 1 -> searchByName();
+                case 2 -> searchByCategory();
+                case 3 -> searchByPrice();
+                case 4 -> searchByBrand();
+                case 0 -> { return; }
+                default -> System.out.println("Неверный номер!");
             }
         }
-    }
-
-    private boolean isAdmin() {
-        User user = getCurrentUser();
-        if (user == null || !"ADMIN".equalsIgnoreCase(user.getRole())) {
-            System.out.println("Только администратор может это сделать.");
-            return false;
-        }
-        return true;
     }
 }

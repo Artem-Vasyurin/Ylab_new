@@ -14,7 +14,11 @@ public class ProductRepositoryImpl implements ProductRepository {
 
     @Getter
     private static final ProductRepositoryImpl instance = new ProductRepositoryImpl();
-    private static final String FILE_PATH = "products.txt";
+    private static String FILE_PATH = "products.txt";
+
+    public void setFilePathForTest(String path) {
+        FILE_PATH = path;
+    }
 
     @Override
     public void save(Product product) throws IOException {

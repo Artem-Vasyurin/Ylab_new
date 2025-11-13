@@ -20,14 +20,16 @@ public class Product {
         return String.format(
                 """
                 ----------------------------
-                ID: %d
                 Название: %s
                 Описание: %s
                 Категория: %s
                 Цена: %d ₽
                 Бренд: %s
                 """,
-                id, name, description, category, price, brand
+                name, description, category, price, brand
         );
     }
+
+
+
 }

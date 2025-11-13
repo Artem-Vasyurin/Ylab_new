@@ -12,7 +12,11 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Getter
     private static final UserRepositoryImpl instance = new UserRepositoryImpl();
-    private static final String FILE_PATH = "users.txt";
+    private static String FILE_PATH = "users.txt";
+
+    public void setFilePathForTest(String path) {
+        FILE_PATH = path;
+    }
 
     @Override
     public void save(User user) throws IOException {

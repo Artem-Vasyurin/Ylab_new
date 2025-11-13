@@ -2,6 +2,7 @@ package vasyurin.work.controllers;
 
 import lombok.Getter;
 import vasyurin.work.dto.User;
+import vasyurin.work.repository.UserRepository;
 import vasyurin.work.repository.UserRepositoryImpl;
 import java.util.Optional;
 
@@ -10,7 +11,7 @@ public class AuthController {
     @Getter
     private static final AuthController instance = new AuthController();
 
-    private final UserRepositoryImpl userRepository;
+    private final UserRepository userRepository;
 
     private AuthController() {
         this.userRepository = UserRepositoryImpl.getInstance();
