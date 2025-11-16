@@ -4,6 +4,7 @@ import lombok.Getter;
 import vasyurin.work.dto.Product;
 import vasyurin.work.repository.ProductRepository;
 import vasyurin.work.repository.ProductRepositoryImpl;
+import vasyurin.work.repository.ProductRepositoryImplPostgres;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -21,7 +22,7 @@ public class CacheService {
     private final Map<Integer, List<Product>> cacheByPrice = new HashMap<>();
 
     private CacheService() {
-        this.productRepository = ProductRepositoryImpl.getInstance();
+        this.productRepository = ProductRepositoryImplPostgres.getInstance();
     }
 
     public List<Product> getByName(String name) {

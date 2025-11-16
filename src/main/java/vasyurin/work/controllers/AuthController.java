@@ -4,6 +4,8 @@ import lombok.Getter;
 import vasyurin.work.dto.User;
 import vasyurin.work.repository.UserRepository;
 import vasyurin.work.repository.UserRepositoryImpl;
+import vasyurin.work.repository.UserRepositoryImplPostgres;
+
 import java.util.Optional;
 
 public class AuthController {
@@ -14,7 +16,7 @@ public class AuthController {
     private final UserRepository userRepository;
 
     private AuthController() {
-        this.userRepository = UserRepositoryImpl.getInstance();
+        this.userRepository = UserRepositoryImplPostgres.getInstance();
     }
 
     public Optional<User> login(String username, String password) {

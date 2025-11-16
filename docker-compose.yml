@@ -1,0 +1,41 @@
+version: "3.8"
+services:
+  market:
+    container_name: mymarket_service
+    build: .
+    depends_on:
+      - postgres
+    stdin_open: true
+    tty: true
+    ports:
+      - "8080:8080"
+
+  postgres:
+    image: postgres:15
+    container_name: ylab_postgres
+    environment:
+      POSTGRES_USER: artem
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: mymarket_service
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: ylab_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: 123
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+
+volumes:
+  pgdata:
+  pgadmin-data:
