@@ -4,6 +4,7 @@ import lombok.Getter;
 import vasyurin.work.dto.Product;
 import vasyurin.work.repository.ProductRepository;
 import vasyurin.work.repository.ProductRepositoryImpl;
+import vasyurin.work.repository.ProductRepositoryImplPostgres;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,7 +18,7 @@ public class ProductService {
     private final CacheService cacheService;
 
     private ProductService() {
-        this.productRepository = ProductRepositoryImpl.getInstance();
+        this.productRepository = ProductRepositoryImplPostgres.getInstance();
         this.cacheService = CacheService.getInstance();
     }
 
