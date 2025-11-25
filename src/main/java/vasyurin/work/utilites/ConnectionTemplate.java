@@ -8,16 +8,15 @@ import java.sql.SQLException;
 
 public class ConnectionTemplate {
 
-
-    private static  String URL = ConfigurationReader.readConfiguration().db().url();
-    private static  String USER = ConfigurationReader.readConfiguration().db().username();
-    private static  String PASSWORD = ConfigurationReader.readConfiguration().db().password();
-
+    private static final String URL = ConfigurationReader.readConfiguration().db().url();
+    private static final String USER = ConfigurationReader.readConfiguration().db().username();
+    private static final String PASSWORD = ConfigurationReader.readConfiguration().db().password();
 
     public static Connection getConnection() {
         try {
+            Class.forName("org.postgresql.Driver");
             return DriverManager.getConnection(URL, USER, PASSWORD);
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException("Ошибка подключения к базе данных", e);
         }
     }

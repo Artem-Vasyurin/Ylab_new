@@ -6,8 +6,10 @@
             http://www.liquibase.org/xml/ns/dbchangelog
             https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
+        <include file="db/changelog/2025/11/25-01-changelog.xml"/>
+        <include file="db/changelog/2025/11/25-02-changelog.xml"/>
+        <include file="db/changelog/2025/11/25-03-changelog.xml"/>
+        <include file="db/changelog/2025/11/25-04-changelog.xml"/>
 
-        <include file="db/changelog/2025/11/15-02-changelog.xml"/>
-        <include file="db/changelog/2025/11/15-03-changelog.xml"/>
 
 </databaseChangeLog>
