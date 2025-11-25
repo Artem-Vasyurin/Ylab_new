@@ -4,6 +4,7 @@ import lombok.Getter;
 import vasyurin.work.dto.Product;
 import vasyurin.work.repository.ProductRepository;
 import vasyurin.work.repository.ProductRepositoryImpl;
+import vasyurin.work.repository.ProductRepositoryImplPostgres;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -18,7 +19,7 @@ public class SaveService {
     private final AuditServiceImpl auditService;
 
     private SaveService() {
-        this.productRepository = ProductRepositoryImpl.getInstance();
+        this.productRepository = ProductRepositoryImplPostgres.getInstance();
         this.cacheService = CacheService.getInstance();
         this.auditService = AuditServiceImpl.getInstance();
     }
