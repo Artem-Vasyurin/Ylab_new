@@ -12,76 +12,92 @@
     <packaging>war</packaging>
 
     <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <jackson.version>2.16.1</jackson.version>
+        <slf4j.version>2.0.17</slf4j.version>
+        <mapstructprocessor.version>1.5.5.Final</mapstructprocessor.version>
+        <mapstruct.version>1.6.3</mapstruct.version>
+        <jakartaservlet.version>6.1.0</jakartaservlet.version>
+        <jaksoncore.version>3.0.1</jaksoncore.version>
+        <aspectj.version>1.9.21</aspectj.version>
+        <jacksondataformat.version>2.16.1</jacksondataformat.version>
         <testcontainers.version>1.21.3</testcontainers.version>
-        <testcontainersPostgres.version>1.20.3</testcontainersPostgres.version>
+        <testcontainersPostgres.version>1.21.3</testcontainersPostgres.version>
         <liquibase.version>5.0.1</liquibase.version>
         <postgresql.version>42.7.8</postgresql.version>
         <lombok.version>1.18.38</lombok.version>
         <mockito.version>5.18.0</mockito.version>
         <junit.version>5.13.4</junit.version>
+        <aspectjtools.version>1.9.21</aspectjtools.version>
+
+        <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
+        <aspectj-maven-plugin.version>1.14</aspectj-maven-plugin.version>
+
     </properties>
 
     <dependencies>
+
+        <!--slf4j-->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-            <version>2.0.17</version>
+            <version>${slf4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>2.0.17</version>
+            <version>${slf4j.version}</version>
         </dependency>
+
+        <!-- mapstruct-->
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct-processor</artifactId>
-            <version>1.5.5.Final</version>
+            <version>${mapstructprocessor.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
-            <version>1.6.3</version>
+            <version>${mapstruct.version}</version>
         </dependency>
+
         <!-- AspectJ -->
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjrt</artifactId>
-            <version>1.9.21</version>
+            <version>${aspectj.version}</version>
         </dependency>
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
-            <version>1.9.21</version>
+            <version>${aspectj.version}</version>
         </dependency>
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjtools</artifactId>
-            <version>1.9.21</version>
+            <version>${aspectj.version}</version>
         </dependency>
 
         <!-- Jackson -->
         <dependency>
             <groupId>tools.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>3.0.1</version>
+            <version>${jaksoncore.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-yaml</artifactId>
-            <version>${jackson.version}</version>
+            <version>${jacksondataformat.version}</version>
         </dependency>
 
         <!-- Jakarta Servlet API -->
         <dependency>
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
-            <version>6.1.0</version>
+            <version>${jakartaservlet.version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -110,6 +126,12 @@
         <!-- Testing -->
         <dependency>
             <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
             <artifactId>junit-jupiter</artifactId>
             <version>${testcontainers.version}</version>
             <scope>test</scope>
@@ -136,11 +158,10 @@
 
     <build>
         <plugins>
-            <!-- Компилятор -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
+                <version>${maven-compiler-plugin.version}</version>
                 <configuration>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
@@ -153,40 +174,33 @@
                         <path>
                             <groupId>org.mapstruct</groupId>
                             <artifactId>mapstruct-processor</artifactId>
-                            <version>1.5.5.Final</version>
+                            <version>${mapstructprocessor.version}</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
-
-            <!-- AspectJ weaving после компиляции -->
             <plugin>
                 <groupId>dev.aspectj</groupId>
                 <artifactId>aspectj-maven-plugin</artifactId>
-                <version>1.14</version>
+                <version>${aspectj-maven-plugin.version}</version>
                 <dependencies>
                     <dependency>
                         <groupId>org.aspectj</groupId>
                         <artifactId>aspectjtools</artifactId>
-                        <version>1.9.21</version>
+                        <version>${aspectjtools.version}</version>
                     </dependency>
                 </dependencies>
                 <configuration>
-                    <!-- Включаем принудительное использование ajc, но без повторной компиляции источников -->
                     <forceAjcCompile>true</forceAjcCompile>
-                    <!-- Источники пропускаем, чтобы не перекомпилировать .java -->
                     <sources/>
-                    <!-- Указываем, куда вшивать: папка с .class, сгенерированная javac -->
                     <weaveDirectories>
                         <weaveDirectory>${project.build.outputDirectory}</weaveDirectory>
                     </weaveDirectories>
-                    <!-- Инфо о weaving -->
                     <showWeaveInfo>true</showWeaveInfo>
                     <verbose>true</verbose>
                 </configuration>
                 <executions>
                     <execution>
-                        <!-- Вшиваем после фазы компиляции -->
                         <phase>process-classes</phase>
                         <goals>
                             <goal>compile</goal>
@@ -194,10 +208,6 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <!-- Остальные ваши плагины… -->
         </plugins>
     </build>
-
-
 </project>

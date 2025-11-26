@@ -22,8 +22,8 @@ public class SecurityServiceImpl implements SecurityService {
     @Override
     public Optional<User> login(User loginRequest) {
         if (loginRequest == null
-                || loginRequest.getUsername() == null
-                || loginRequest.getPassword() == null) {
+            || loginRequest.getUsername() == null
+            || loginRequest.getPassword() == null) {
             return Optional.empty();
         }
 

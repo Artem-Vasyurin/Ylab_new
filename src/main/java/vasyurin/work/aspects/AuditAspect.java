@@ -19,7 +19,6 @@ public class AuditAspect {
 
         User user = UserContext.get();
 
-        // ---- 1. LOGIN ----
         if (method.equals("login")) {
 
             User loginReq = (args.length > 0 && args[0] instanceof User u) ? u : null;
@@ -31,7 +30,6 @@ public class AuditAspect {
             return;
         }
 
-        // ---- 2. ВСЕ ОСТАЛЬНЫЕ МЕТОДЫ ----
         if (user != null) {
             AuditServiceImpl.getInstance().log(
                     user,
@@ -48,7 +46,6 @@ public class AuditAspect {
         return Arrays.stream(args)
                 .map(arg -> {
                     if (arg instanceof User u) {
-                        // НЕ ЛОГИРУЕМ ПАРОЛЬ/ТОКЕН/РОЛЬ!
                         return "{username=" + u.getUsername() + "}";
                     }
                     return String.valueOf(arg);

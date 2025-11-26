@@ -11,8 +11,8 @@ import vasyurin.work.services.SaveService;
 
 import java.io.*;
 
-import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
 
 @Testcontainers
 public class ProductServletCreateTest {
@@ -21,7 +21,7 @@ public class ProductServletCreateTest {
     private HttpServletRequest req;
     private HttpServletResponse resp;
     private SaveService saveServiceMock;
-    private ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper();
     private StringWriter responseWriter;
 
     @BeforeEach

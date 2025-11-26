@@ -19,11 +19,11 @@ import static org.mockito.Mockito.*;
 @Testcontainers
 public class LoginServletTest {
 
+    private final ObjectMapper mapper = new ObjectMapper();
     private LoginServlet servlet;
     private HttpServletRequest req;
     private HttpServletResponse resp;
     private SecurityServiceImpl securityServiceMock;
-    private ObjectMapper mapper = new ObjectMapper();
     private StringWriter responseWriter;
 
     @BeforeEach

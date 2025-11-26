@@ -46,7 +46,7 @@ class AuditServiceImplTest {
         auditSpy.log("Система перезапущена");
 
         assertEquals(1, capturedLogs.size());
-        assertTrue(capturedLogs.get(0).contains("Система перезапущена"));
+        assertTrue(capturedLogs.getFirst().contains("Система перезапущена"));
     }
 
     @Test
@@ -57,7 +57,7 @@ class AuditServiceImplTest {
         auditSpy.log(user, "Создан товар");
 
         assertEquals(1, capturedLogs.size());
-        String log = capturedLogs.get(0);
+        String log = capturedLogs.getFirst();
         assertTrue(log.contains("admin"));
         assertTrue(log.contains("Создан товар"));
     }

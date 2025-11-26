@@ -16,7 +16,7 @@ public class AuthFilter implements Filter {
 
     private final SecurityServiceImpl securityService;
 
-    private AuthFilter() {
+    public AuthFilter() {
         this.securityService = SecurityServiceImpl.getInstance();
     }
 

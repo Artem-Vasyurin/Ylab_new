@@ -7,6 +7,7 @@ import vasyurin.work.dto.Product;
 import vasyurin.work.entitys.ProductEntity;
 import vasyurin.work.repository.ProductRepository;
 import vasyurin.work.utilites.ProductMapper;
+import vasyurin.work.utilites.TestReflectionUtils;
 
 import java.util.List;
 
@@ -51,7 +52,7 @@ public class ProductServiceTest {
 
         when(cacheServiceMock.get(filter)).thenReturn(null);
         when(mapperMock.toEntity(filter)).thenReturn(filterEntity);
-        when(productRepositoryMock.getFilteredProducts(filterEntity)).thenReturn(List.of(entity1, entity2));
+        when(productRepositoryMock.findFilteredProducts(filterEntity)).thenReturn(List.of(entity1, entity2));
         when(mapperMock.toDto(entity1)).thenReturn(dto1);
         when(mapperMock.toDto(entity2)).thenReturn(dto2);
 

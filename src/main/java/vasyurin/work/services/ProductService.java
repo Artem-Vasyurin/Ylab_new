@@ -30,7 +30,7 @@ public class ProductService {
         if (cacheService.get(filter) == null) {
             ProductEntity filterEntity = mapper.toEntity(filter);
 
-            List<Product> listProducts = productRepository.getFilteredProducts(filterEntity)
+            List<Product> listProducts = productRepository.findFilteredProducts(filterEntity)
                     .stream()
                     .map(mapper::toDto)
                     .toList();

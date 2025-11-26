@@ -3,8 +3,8 @@ package vasyurin.work.repository;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import vasyurin.work.enams.ProductCategory;
-import vasyurin.work.utilites.ConnectionTemplate;
 import vasyurin.work.entitys.ProductEntity;
+import vasyurin.work.utilites.ConnectionTemplate;
 
 import java.math.BigDecimal;
 import java.sql.*;
@@ -22,39 +22,31 @@ public class ProductRepositoryImplPostgres implements ProductRepository {
 
     @Override
     public void save(ProductEntity product) {
-        log.info("Saving product {}", product);
 
         ProductEntity filter = new ProductEntity();
         filter.setGtin(product.getGtin());
 
-        List<ProductEntity> existingList = getFilteredProducts(filter);
+        List<ProductEntity> existingList = findFilteredProducts(filter);
 
         if (!existingList.isEmpty()) {
             ProductEntity existing = existingList.getFirst();
             product.setId(existing.getId());
-            log.info("Updating product {}", product);
             update(product);
         } else {
-            log.info(String.format("Saving product %s", product));
             insert(product);
         }
     }
 
     private void insert(ProductEntity product) {
-        log.info("Inserting new product: {}", product);
         String sql = ProductSql.INSERT_PRODUCT;
 
         try (Connection conn = ConnectionTemplate.getConnection();
              PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
 
             fillInsertParameters(product, preparedStatement);
-            log.info("Executing insert...");
             try (ResultSet rs = preparedStatement.executeQuery()) {
                 if (rs.next()) {
                     product.setId(rs.getInt("id"));
-                    log.info("Inserted product id: {}", product.getId());
-                }else {
-                    log.warn("Insert returned no id!");
                 }
             }
         } catch (SQLException e) {
@@ -65,7 +57,6 @@ public class ProductRepositoryImplPostgres implements ProductRepository {
     }
 
     private void update(ProductEntity product) {
-        log.info("InUpdateMethodReposit {}", product);
         String sql = ProductSql.UPDATE_PRODUCT;
 
         try (Connection conn = ConnectionTemplate.getConnection();
@@ -73,7 +64,6 @@ public class ProductRepositoryImplPostgres implements ProductRepository {
 
             fillInsertParameters(product, preparedStatement);
             preparedStatement.setInt(7, product.getId());
-            log.info("Executing update...");
 
             preparedStatement.executeUpdate();
 
@@ -84,26 +74,7 @@ public class ProductRepositoryImplPostgres implements ProductRepository {
     }
 
     @Override
-    public List<ProductEntity> getAll() {
-        List<ProductEntity> products = new ArrayList<>();
-        String sql = ProductSql.SELECT_ALL_PRODUCT;
-
-        try (Connection conn = ConnectionTemplate.getConnection();
-             Statement statement = conn.createStatement();
-             ResultSet rs = statement.executeQuery(sql)) {
-
-            while (rs.next()) {
-                products.add(mapRow(rs));
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Ошибка получения всех продуктов", e);
-        }
-        return products;
-    }
-
-    @Override
-    public List<ProductEntity> getFilteredProducts(ProductEntity filter) {
+    public List<ProductEntity> findFilteredProducts(ProductEntity filter) {
 
         String sql = ProductSql.SELECT_FILTER_PRODUCT;
 

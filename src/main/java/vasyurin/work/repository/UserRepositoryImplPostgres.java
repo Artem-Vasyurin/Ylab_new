@@ -2,6 +2,7 @@ package vasyurin.work.repository;
 
 import lombok.Getter;
 import vasyurin.work.dto.User;
+import vasyurin.work.utilites.ConnectionProvider;
 import vasyurin.work.utilites.ConnectionTemplate;
 
 import java.sql.*;
@@ -14,8 +15,6 @@ public class UserRepositoryImplPostgres implements UserRepository {
     @Getter
     private static final UserRepositoryImplPostgres instance = new UserRepositoryImplPostgres();
 
-    private UserRepositoryImplPostgres() {
-    }
 
     @Override
     public void save(User user) {

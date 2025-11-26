@@ -18,7 +18,7 @@ public class ProductServletCreate extends HttpServlet {
     private final ObjectMapper mapper = new ObjectMapper();
     private final SaveService saveService;
 
-    private ProductServletCreate() {
+    public ProductServletCreate() {
         this.saveService = SaveService.getInstance();
     }
 
@@ -28,7 +28,6 @@ public class ProductServletCreate extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        log.info("doPost");
 
         resp.setContentType("application/json;charset=UTF-8");
         Product product = mapper.readValue(req.getReader(), Product.class);
@@ -37,9 +36,7 @@ public class ProductServletCreate extends HttpServlet {
         resp.getWriter().write(json);
         resp.getWriter().flush();
 
-        log.info("перед сейвом {}",product);
         saveService.save(product);
-        log.info("псоле сейва {}",product);
 
         resp.setStatus(HttpServletResponse.SC_CREATED);
 

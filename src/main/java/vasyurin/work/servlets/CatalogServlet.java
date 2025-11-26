@@ -1,8 +1,8 @@
 package vasyurin.work.servlets;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,7 +21,7 @@ public class CatalogServlet extends HttpServlet {
     private final ObjectMapper mapper = new ObjectMapper();
     private final ProductValidator validator;
 
-    private CatalogServlet() {
+    public CatalogServlet() {
         this.productService = ProductService.getInstance();
         this.validator = ProductValidator.getInstance();
     }

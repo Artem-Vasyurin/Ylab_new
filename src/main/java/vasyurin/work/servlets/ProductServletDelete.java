@@ -16,7 +16,7 @@ public class ProductServletDelete extends HttpServlet {
     private final SaveService saveService;
     private final ObjectMapper mapper = new ObjectMapper();
 
-    private ProductServletDelete() {
+    public ProductServletDelete() {
         this.saveService = SaveService.getInstance();
     }
 

@@ -48,6 +48,7 @@ public class SaveService {
         cacheService.clear();
 
     }
+
     @AuditAction
     public void delete(Product product) throws IOException {
         productRepository.delete(product.getGtin());

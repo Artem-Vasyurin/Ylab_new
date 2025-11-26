@@ -18,7 +18,7 @@ public class LoginServlet extends HttpServlet {
     private final SecurityServiceImpl securityService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private LoginServlet() {
+    public LoginServlet() {
         this.securityService = SecurityServiceImpl.getInstance();
     }
 

@@ -6,5 +6,6 @@ import java.util.Optional;
 
 public interface SecurityService {
     Optional<User> getByToken(String token);
+
     Optional<User> login(User loginRequest);
 }

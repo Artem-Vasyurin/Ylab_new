@@ -14,7 +14,8 @@ public class AuditServiceImpl implements AuditService {
     private static final AuditServiceImpl instance = new AuditServiceImpl();
     private static final String FILE_PATH = "/app/logs/audit.log";
 
-    private AuditServiceImpl() {}
+    private AuditServiceImpl() {
+    }
 
     @Override
     public void log(User user, String action) {

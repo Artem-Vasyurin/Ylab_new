@@ -21,12 +21,12 @@ import static org.mockito.Mockito.*;
 @Testcontainers
 public class CatalogServletTest {
 
+    private final ObjectMapper mapper = new ObjectMapper();
     private CatalogServlet servlet;
     private HttpServletRequest req;
     private HttpServletResponse resp;
     private ProductService productServiceMock;
     private ProductValidator validatorMock;
-    private final ObjectMapper mapper = new ObjectMapper();
     private StringWriter responseWriter;
 
     @BeforeEach
@@ -73,7 +73,7 @@ public class CatalogServletTest {
         Product p2 = new Product();
         p2.setName("Product2");
 
-        when(validatorMock.validate(any())).thenReturn(List.of()); // без ошибок
+        when(validatorMock.validate(any())).thenReturn(List.of());
         when(productServiceMock.getFilteredProducts(any())).thenReturn(List.of(p1, p2));
 
         servlet.doPost(req, resp);
@@ -82,7 +82,7 @@ public class CatalogServletTest {
         String responseJson = responseWriter.toString();
         List<Product> products = List.of(mapper.readValue(responseJson, Product[].class));
         assertEquals(2, products.size());
-        assertEquals("Product1", products.get(0).getName());
+        assertEquals("Product1", products.getFirst().getName());
     }
 
     @Test

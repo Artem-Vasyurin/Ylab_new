@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import vasyurin.work.dto.Product;
 import vasyurin.work.services.SaveService;
 
@@ -12,13 +13,14 @@ import java.io.*;
 
 import static org.mockito.Mockito.*;
 
+@Testcontainers
 public class ProductServletDeleteTest {
 
+    private final ObjectMapper mapper = new ObjectMapper();
     private ProductServletDelete servlet;
     private HttpServletRequest req;
     private HttpServletResponse resp;
     private SaveService saveServiceMock;
-    private final ObjectMapper mapper = new ObjectMapper();
 
     @BeforeEach
     void setUp() throws IOException {

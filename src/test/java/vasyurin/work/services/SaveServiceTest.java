@@ -7,6 +7,7 @@ import vasyurin.work.dto.Product;
 import vasyurin.work.entitys.ProductEntity;
 import vasyurin.work.repository.ProductRepository;
 import vasyurin.work.utilites.ProductMapper;
+import vasyurin.work.utilites.TestReflectionUtils;
 
 import java.io.IOException;
 
@@ -70,12 +71,12 @@ public class SaveServiceTest {
 
     @Test
     void testUpdate_GtinNull_ThrowsException() {
-        Product dto = new Product(); // GTIN null
+        Product dto = new Product();
 
         try {
             saveService.update(dto);
         } catch (IllegalArgumentException e) {
-            assert(e.getMessage().contains("GTIN не может быть null"));
+            assert (e.getMessage().contains("GTIN не может быть null"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
