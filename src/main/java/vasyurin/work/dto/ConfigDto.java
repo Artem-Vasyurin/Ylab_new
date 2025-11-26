@@ -13,7 +13,8 @@ public record ConfigDto(Db db, Liquibase liquibase) {
             String schemaTest,
             String serviceSchemaTest
 
-    ) {}
+    ) {
+    }
 
     public record Liquibase(
             String changeLog,
@@ -22,5 +23,6 @@ public record ConfigDto(Db db, Liquibase liquibase) {
             String changeLogTest,
             String defaultSchemaTest,
             String liquibaseSchemaNameTest
-    ) {}
+    ) {
+    }
 }

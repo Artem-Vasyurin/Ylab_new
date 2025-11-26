@@ -1,73 +1,60 @@
 package vasyurin.work.services;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import vasyurin.work.annotations.AuditAction;
 import vasyurin.work.dto.Product;
+import vasyurin.work.entitys.ProductEntity;
 import vasyurin.work.repository.ProductRepository;
-import vasyurin.work.repository.ProductRepositoryImpl;
 import vasyurin.work.repository.ProductRepositoryImplPostgres;
+import vasyurin.work.utilites.ProductMapper;
 
 import java.io.IOException;
-import java.util.Optional;
 
+@Slf4j
 public class SaveService {
 
     @Getter
     private static final SaveService instance = new SaveService();
 
     private final ProductRepository productRepository;
-    private final CacheService cacheService;
     private final AuditServiceImpl auditService;
+    private final ProductMapper mapper = ProductMapper.INSTANCE;
+    private final CacheService cacheService;
 
     private SaveService() {
         this.productRepository = ProductRepositoryImplPostgres.getInstance();
-        this.cacheService = CacheService.getInstance();
         this.auditService = AuditServiceImpl.getInstance();
+        this.cacheService = CacheService.getInstance();
     }
 
-    SaveService(ProductRepository productRepository,
-                CacheService cacheService,
-                AuditService auditService) {
-        this.productRepository = productRepository;
-        this.cacheService = cacheService;
-        this.auditService = (AuditServiceImpl) auditService;
+    @AuditAction
+    public void save(Product dto) throws IOException {
+        System.out.println("SaveService LOADED BY: " + this.getClass().getClassLoader());
+        log.info("Saving product: {}", dto);
+        ProductEntity entity = mapper.toEntity(dto);
+        productRepository.save(entity);
+        cacheService.clear();
     }
 
-
-    public void save(Product product) throws IOException {
-        productRepository.save(product);
-        cacheService.clearAllCaches();
-    }
-
-    public void update(Product updatedProduct) throws IOException {
-        Optional<Product> oldProductOpt = cacheService.getCachedOrFromFile(updatedProduct.getId());
-        if (oldProductOpt.isEmpty()) {
-            throw new IllegalArgumentException("Товар с ID " + updatedProduct.getId() + " не найден.");
+    public void update(Product dto) throws IOException {
+        if (dto.getGtin() == null) {
+            throw new IllegalArgumentException("GTIN не может быть null при обновлении");
         }
 
-        Product oldProduct = oldProductOpt.get();
-        productRepository.save(updatedProduct);
-        clearCachesAfterUpdate(oldProduct, updatedProduct);
+        ProductEntity newEntity = mapper.toEntity(dto);
+
+        productRepository.save(newEntity);
+        cacheService.clear();
+
     }
 
+    @AuditAction
     public void delete(Product product) throws IOException {
-        productRepository.delete(product);
-        cacheService.clearAllCaches();
-        auditService.log("Товар удалён");
-    }
-
-    private void clearCachesAfterUpdate(Product oldProduct, Product updatedProduct) {
-        if (!oldProduct.getName().equals(updatedProduct.getName())) {
-            cacheService.clearNameCache();
-        }
-        if (!oldProduct.getCategory().equals(updatedProduct.getCategory())) {
-            cacheService.clearCategoryCache();
-        }
-        if (!oldProduct.getBrand().equals(updatedProduct.getBrand())) {
-            cacheService.clearBrandCache();
-        }
-        if (!oldProduct.getPrice().equals(updatedProduct.getPrice())) {
-            cacheService.clearPriceCache();
-        }
+        productRepository.delete(product.getGtin());
+        auditService.log("Товар удалён GTIN=" + product.getGtin());
+        cacheService.clear();
     }
 
 }
+

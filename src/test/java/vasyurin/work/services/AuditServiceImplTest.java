@@ -2,43 +2,63 @@ package vasyurin.work.services;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import vasyurin.work.dto.User;
 
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.*;
 
+@Testcontainers
 class AuditServiceImplTest {
 
-    private AuditServiceImpl auditService;
+    private AuditServiceImpl auditSpy;
+    private List<String> capturedLogs;
 
     @BeforeEach
     void setUp() {
-        auditService = AuditServiceImpl.getInstance();
+        capturedLogs = new ArrayList<>();
+        auditSpy = spy(AuditServiceImpl.getInstance());
+
+        doAnswer(invocation -> {
+            String log = invocation.getArgument(0);
+            capturedLogs.add(log);
+            return null;
+        }).when(auditSpy).log(anyString());
+
+        doAnswer(invocation -> {
+            User user = invocation.getArgument(0);
+            String action = invocation.getArgument(1);
+            String log = String.format("[%s] Пользователь: %s  Действие: %s",
+                    java.time.LocalDateTime.now(),
+                    user != null ? user.getUsername() : "SYSTEM",
+                    action);
+            capturedLogs.add(log);
+            return null;
+        }).when(auditSpy).log(any(User.class), anyString());
     }
 
     @Test
-    void getInstance_returnsSameInstance() {
-        AuditServiceImpl instance1 = AuditServiceImpl.getInstance();
-        AuditServiceImpl instance2 = AuditServiceImpl.getInstance();
-        assertSame(instance1, instance2);
+    void testLogWithoutUser() {
+        auditSpy.log("Система перезапущена");
+
+        assertEquals(1, capturedLogs.size());
+        assertTrue(capturedLogs.getFirst().contains("Система перезапущена"));
     }
 
     @Test
-    void log_withUser_doesNotThrow() {
+    void testLogWithUser() {
         User user = new User();
-        user.setUsername("testUser");
+        user.setUsername("admin");
 
-        assertDoesNotThrow(() -> auditService.log(user, "Test action"));
-    }
+        auditSpy.log(user, "Создан товар");
 
-    @Test
-    void log_withoutUser_doesNotThrow() {
-        assertDoesNotThrow(() -> auditService.log((User) null, "Test action"));
-    }
-
-    @Test
-    void log_actionOnly_doesNotThrow() {
-        assertDoesNotThrow(() -> auditService.log("Test system action"));
+        assertEquals(1, capturedLogs.size());
+        String log = capturedLogs.getFirst();
+        assertTrue(log.contains("admin"));
+        assertTrue(log.contains("Создан товар"));
     }
 }

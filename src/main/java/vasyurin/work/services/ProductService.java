@@ -1,13 +1,14 @@
 package vasyurin.work.services;
 
 import lombok.Getter;
+import vasyurin.work.annotations.AuditAction;
 import vasyurin.work.dto.Product;
+import vasyurin.work.entitys.ProductEntity;
 import vasyurin.work.repository.ProductRepository;
-import vasyurin.work.repository.ProductRepositoryImpl;
 import vasyurin.work.repository.ProductRepositoryImplPostgres;
+import vasyurin.work.utilites.ProductMapper;
 
 import java.util.List;
-import java.util.Optional;
 
 public class ProductService {
 
@@ -15,34 +16,28 @@ public class ProductService {
     private static final ProductService instance = new ProductService();
 
     private final ProductRepository productRepository;
-    private final CacheService cacheService;
+    private final ProductMapper mapper = ProductMapper.INSTANCE;
+    private final CacheService cacheService = CacheService.getInstance();
 
     private ProductService() {
         this.productRepository = ProductRepositoryImplPostgres.getInstance();
-        this.cacheService = CacheService.getInstance();
     }
 
-    public List<Product> getAll() {
-        return productRepository.getAll();
-    }
+    @AuditAction
+    public List<Product> getFilteredProducts(Product filter) {
+        System.out.println("ProductService LOADED BY: " + this.getClass().getClassLoader());
 
-    public Optional<Product> getById(int id) {
-        return productRepository.getById(id);
-    }
+        if (cacheService.get(filter) == null) {
+            ProductEntity filterEntity = mapper.toEntity(filter);
 
-    public List<Product> getByName(String name) {
-        return cacheService.getByName(name);
-    }
-
-    public List<Product> getByCategory(String category) {
-        return cacheService.getByCategory(category);
-    }
-
-    public List<Product> getByBrand(String brand) {
-        return cacheService.getByBrand(brand);
-    }
-
-    public List<Product> getByPrice(int price) {
-        return cacheService.getByPrice(price);
+            List<Product> listProducts = productRepository.findFilteredProducts(filterEntity)
+                    .stream()
+                    .map(mapper::toDto)
+                    .toList();
+            cacheService.put(filter, listProducts);
+            return listProducts;
+        } else {
+            return cacheService.get(filter);
+        }
     }
 }

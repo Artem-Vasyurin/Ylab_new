@@ -1,6 +1,9 @@
 package vasyurin.work.dto;
 
 import lombok.*;
+import vasyurin.work.enams.ProductCategory;
+
+import java.math.BigDecimal;
 
 @Data
 @NoArgsConstructor
@@ -8,28 +11,20 @@ import lombok.*;
 @Getter
 @Setter
 public class Product {
-    private Integer id;
+    private Integer gtin;
     private String name;
     private String description;
-    private String category;
-    private Integer price;
+    private ProductCategory category;
+    private BigDecimal price;
     private String brand;
+
 
     @Override
     public String toString() {
         return String.format(
-                """
-                ----------------------------
-                Название: %s
-                Описание: %s
-                Категория: %s
-                Цена: %d ₽
-                Бренд: %s
-                """,
-                name, description, category, price, brand
+                "Артикул: %s, Название: %s, Описание: %s, Категория: %s, Цена: %s ₽, Бренд: %s",
+                gtin, name, description, category, price != null ? price.toPlainString() : "null", brand
         );
     }
-
-
 
 }

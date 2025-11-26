@@ -1,121 +1,113 @@
 package vasyurin.work.repository;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.testcontainers.containers.PostgreSQLContainer;
-import vasyurin.work.dto.Product;
-import vasyurin.work.utilites.ConnectionTemplate;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import vasyurin.work.enams.ProductCategory;
+import vasyurin.work.entitys.ProductEntity;
+import vasyurin.work.utilites.TestConnectionTemplate;
 
-import java.lang.reflect.Field;
+import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
-import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Testcontainers
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class ProductRepositoryImplPostgresTest {
 
-    static PostgreSQLContainer<?> POSTGRES_CONTAINER = new PostgreSQLContainer<>("postgres:15.4")
-            .withDatabaseName("testdb_unit")
-            .withUsername("testuser")
-            .withPassword("testpass");
+    private static final PostgreSQLContainer<?> postgres =
+            new PostgreSQLContainer<>("postgres:15")
+                    .withDatabaseName("testdb")
+                    .withUsername("test")
+                    .withPassword("test");
 
-    private ProductRepositoryImplPostgres repository;
-    private static final String SCHEMA = "app_schema";
+    private static TestConnectionTemplate testConn;
+    private ProductRepository repository;
+
+    private static void createSchemaAndTable() throws SQLException {
+        try (Connection conn = testConn.getConnection();
+             Statement st = conn.createStatement()) {
+
+            st.execute(ProductSqlTest.CREATE_SCHEME_PRODUCT);
+            String sql = ProductSqlTest.CREATE_TABLE_PRODUCT;
+            st.execute(sql);
+        }
+    }
 
     @BeforeAll
-    void setUp() throws Exception {
-        POSTGRES_CONTAINER.start();
+    void setup() throws SQLException {
+        postgres.start();
 
-        setPrivateStaticField(ConnectionTemplate.class, "URL", POSTGRES_CONTAINER.getJdbcUrl());
-        setPrivateStaticField(ConnectionTemplate.class, "USER", POSTGRES_CONTAINER.getUsername());
-        setPrivateStaticField(ConnectionTemplate.class, "PASSWORD", POSTGRES_CONTAINER.getPassword());
+        testConn = new TestConnectionTemplate(
+                postgres.getJdbcUrl(),
+                postgres.getUsername(),
+                postgres.getPassword()
+        );
 
-        try (Connection conn = POSTGRES_CONTAINER.createConnection("");
-             Statement stmt = conn.createStatement()) {
+        repository = new ProductRepositoryForTest(testConn);
 
-            stmt.execute("CREATE SCHEMA IF NOT EXISTS " + SCHEMA);
-            stmt.execute("CREATE SEQUENCE IF NOT EXISTS " + SCHEMA + ".product_seq START 1");
-
-            stmt.execute("CREATE TABLE IF NOT EXISTS " + SCHEMA + ".products (" +
-                    "id BIGINT PRIMARY KEY DEFAULT nextval('" + SCHEMA + ".product_seq')," +
-                    "name VARCHAR(255) NOT NULL," +
-                    "description TEXT," +
-                    "category VARCHAR(255)," +
-                    "price INT," +
-                    "brand VARCHAR(255)" +
-                    ")");
-        }
-
-        repository = ProductRepositoryImplPostgres.getInstance();
+        createSchemaAndTable();
     }
 
-    @AfterEach
-    void cleanUp() throws Exception {
-        try (Connection conn = POSTGRES_CONTAINER.createConnection("");
-             Statement stmt = conn.createStatement()) {
-            stmt.execute("DELETE FROM " + SCHEMA + ".products"); // очищаем данные после каждого теста
+    @BeforeEach
+    void cleanTable() throws SQLException {
+        try (Connection conn = testConn.getConnection();
+             Statement st = conn.createStatement()) {
+            st.execute(ProductSqlTest.TRUNCATE_TABLE_TEST_SCHEMA_PRODUCT);
         }
     }
 
-    @AfterAll
-    void tearDown() {
-        POSTGRES_CONTAINER.stop();
+
+    @Test
+    void testInsertAndFind() throws IOException {
+        ProductEntity p = new ProductEntity(null, 12345, "Prod1", "Desc1", ProductCategory.ELECTRONICS, BigDecimal.valueOf(10.5), "BrandA");
+        repository.save(p);
+
+        List<ProductEntity> found = repository.findFilteredProducts(new ProductEntity());
+        assertEquals(1, found.size());
+        assertEquals("Prod1", found.get(0).getName());
     }
 
     @Test
-    @Order(1)
-    void saveAndGetById_shouldWork() {
-        Product product = new Product(null, "Подушка", "Мягкая", "Постель", 100, "Brand");
-        repository.save(product);
+    void testUpdate() throws IOException {
+        ProductEntity p = new ProductEntity(null, 11111, "ProdOld", "OldDesc", ProductCategory.ELECTRONICS, BigDecimal.valueOf(5.0), "BrandB");
+        repository.save(p);
 
-        Optional<Product> result = repository.getById(product.getId());
-        assertTrue(result.isPresent());
-        assertEquals("Подушка", result.get().getName());
+        ProductEntity updated = new ProductEntity(null, 11111, "ProdNew", "NewDesc", ProductCategory.ELECTRONICS, BigDecimal.valueOf(15.00), "BrandB");
+        repository.save(updated);
+
+        List<ProductEntity> found = repository.findFilteredProducts(new ProductEntity());
+        assertEquals(1, found.size());
+        assertEquals("ProdNew", found.get(0).getName());
+        assertEquals(new BigDecimal("15.00"), found.getFirst().getPrice());
+
     }
 
     @Test
-    @Order(2)
-    void update_shouldWork() {
-        Product product = new Product(null, "Старое имя", "Описание", "Категория", 50, "Brand");
-        repository.save(product);
+    void testGetAll() throws IOException {
+        repository.save(new ProductEntity(null, 1, "P1", "D1", ProductCategory.ELECTRONICS, BigDecimal.valueOf(100), "BrandX"));
+        repository.save(new ProductEntity(null, 2, "P2", "D2", ProductCategory.ELECTRONICS, BigDecimal.valueOf(50), "BrandY"));
 
-        product.setName("Новое имя");
-        repository.save(product);
-
-        Optional<Product> updated = repository.getById(product.getId());
-        assertTrue(updated.isPresent());
-        assertEquals("Новое имя", updated.get().getName());
+        List<ProductEntity> list = repository.findFilteredProducts(new ProductEntity());
+        assertEquals(2, list.size());
     }
 
     @Test
-    @Order(3)
-    void getAll_shouldReturnAllProducts() {
-        repository.save(new Product(null, "Продукт1", "Desc1", "Cat1", 10, "Brand1"));
-        repository.save(new Product(null, "Продукт2", "Desc2", "Cat2", 20, "Brand2"));
+    void testDelete() throws IOException {
+        ProductEntity p = new ProductEntity(null, 999, "DelMe", "Desc", ProductCategory.ELECTRONICS, BigDecimal.valueOf(20), "BrandDel");
+        repository.save(p);
 
-        List<Product> products = repository.getAll();
-        assertEquals(2, products.size());
-    }
-
-    @Test
-    @Order(4)
-    void delete_shouldRemoveProduct() {
-        Product product = new Product(null, "Удалить", "Desc", "Cat", 10, "Brand");
-        repository.save(product);
-
-        repository.delete(product);
-
-        Optional<Product> result = repository.getById(product.getId());
-        assertFalse(result.isPresent());
-    }
-
-    // Вспомогательный метод для Reflection
-    private static void setPrivateStaticField(Class<?> clazz, String fieldName, Object value) throws Exception {
-        Field field = clazz.getDeclaredField(fieldName);
-        field.setAccessible(true);
-        field.set(null, value);
+        repository.delete(999);
+        List<ProductEntity> list = repository.findFilteredProducts(new ProductEntity());
+        assertTrue(list.isEmpty());
     }
 }
