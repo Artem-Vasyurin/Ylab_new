@@ -1,21 +1,18 @@
 package vasyurin.work.services;
 
-import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Service;
 import vasyurin.work.dto.Product;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Service
+@NoArgsConstructor
 public class CacheService {
 
-    @Getter
-    private static final CacheService instance = new CacheService();
-
     private final Map<Product, List<Product>> cache = new HashMap<>();
-
-    private CacheService() {
-    }
 
     public List<Product> get(Product key) {
         return cache.get(key);

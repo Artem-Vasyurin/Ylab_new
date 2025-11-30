@@ -13,7 +13,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @Testcontainers
 class ProductValidatorTest {
 
-    private final ProductValidator validator = ProductValidator.getInstance();
+    private final ProductValidator validator;
+
+    public ProductValidatorTest(ProductValidator validator) {
+        this.validator = validator;
+    }
 
     @Test
     void testValidProduct_NoErrors() {
@@ -34,7 +38,7 @@ class ProductValidatorTest {
 
         List<String> errors = validator.validate(product);
         assertEquals(1, errors.size());
-        assertEquals("Название продукта не должно превышать 50 символов", errors.getFirst());
+        assertEquals("Название продукта не должно превышать 50 символов", errors.get(0));
     }
 
     @Test
@@ -44,7 +48,7 @@ class ProductValidatorTest {
 
         List<String> errors = validator.validate(product);
         assertEquals(1, errors.size());
-        assertEquals("Описание продукта не должно превышать 255 символов", errors.getFirst());
+        assertEquals("Описание продукта не должно превышать 255 символов", errors.get(0));
     }
 
     @Test
@@ -54,7 +58,7 @@ class ProductValidatorTest {
 
         List<String> errors = validator.validate(product);
         assertEquals(1, errors.size());
-        assertEquals("Бренд продукта не должен превышать 50 символов", errors.getFirst());
+        assertEquals("Бренд продукта не должен превышать 50 символов", errors.get(0));
     }
 
     @Test
@@ -64,7 +68,7 @@ class ProductValidatorTest {
 
         List<String> errors = validator.validate(product);
         assertEquals(1, errors.size());
-        assertEquals("Цена продукта не может быть отрицательной", errors.getFirst());
+        assertEquals("Цена продукта не может быть отрицательной", errors.get(0));
     }
 
     @Test

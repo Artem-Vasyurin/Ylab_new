@@ -1,31 +1,29 @@
 package vasyurin.work.services;
 
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 import vasyurin.work.annotations.AuditAction;
 import vasyurin.work.dto.Product;
 import vasyurin.work.entitys.ProductEntity;
 import vasyurin.work.repository.ProductRepository;
-import vasyurin.work.repository.ProductRepositoryImplPostgres;
 import vasyurin.work.utilites.ProductMapper;
 
 import java.io.IOException;
 
 @Slf4j
+@Service
 public class SaveService {
 
-    @Getter
-    private static final SaveService instance = new SaveService();
-
     private final ProductRepository productRepository;
-    private final AuditServiceImpl auditService;
-    private final ProductMapper mapper = ProductMapper.INSTANCE;
+    private final AuditService auditService;
+    private final ProductMapper mapper;
     private final CacheService cacheService;
 
-    private SaveService() {
-        this.productRepository = ProductRepositoryImplPostgres.getInstance();
-        this.auditService = AuditServiceImpl.getInstance();
-        this.cacheService = CacheService.getInstance();
+    public SaveService(ProductRepository productRepository, AuditService auditService, ProductMapper mapper, CacheService cacheService) {
+        this.productRepository = productRepository;
+        this.auditService = auditService;
+        this.mapper = mapper;
+        this.cacheService = cacheService;
     }
 
     @AuditAction

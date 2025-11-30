@@ -19,10 +19,14 @@ class SecurityServiceImplTest {
     private SecurityServiceImpl securityService;
     private UserRepository userRepositoryMock;
 
+    public SecurityServiceImplTest(SecurityServiceImpl securityService) {
+        this.securityService = securityService;
+
+    }
+
     @BeforeEach
     void setUp() throws Exception {
 
-        securityService = SecurityServiceImpl.getInstance();
 
         userRepositoryMock = mock(UserRepository.class);
 
