@@ -14,9 +14,12 @@ public class CacheServiceTest {
 
     private CacheService cacheService;
 
+    public CacheServiceTest(CacheService cacheService) {
+        this.cacheService = cacheService;
+    }
+
     @BeforeEach
     void setUp() {
-        cacheService = CacheService.getInstance();
         cacheService.clear();
     }
 

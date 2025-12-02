@@ -1,19 +1,16 @@
 package vasyurin.work.services;
 
-import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Component;
 import vasyurin.work.dto.Product;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
+@NoArgsConstructor
 public class ProductValidator {
-
-    @Getter
-    private static final ProductValidator instance = new ProductValidator();
-
-    private ProductValidator() {
-    }
 
     public List<String> validate(Product product) {
         List<String> errors = new ArrayList<>();

@@ -1,21 +1,20 @@
 package vasyurin.work.services.security;
 
-import lombok.Getter;
+import org.springframework.stereotype.Service;
 import vasyurin.work.annotations.AuditAction;
 import vasyurin.work.dto.User;
 import vasyurin.work.repository.UserRepository;
-import vasyurin.work.repository.UserRepositoryImplPostgres;
 
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class SecurityServiceImpl implements SecurityService {
 
-    @Getter
-    private static final SecurityServiceImpl instance = new SecurityServiceImpl();
-    private final UserRepository userRepository = UserRepositoryImplPostgres.getInstance();
+    private final UserRepository userRepository;
 
-    private SecurityServiceImpl() {
+    public SecurityServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     @AuditAction

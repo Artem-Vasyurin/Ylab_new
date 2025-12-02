@@ -3,9 +3,11 @@ package vasyurin.work.aspects;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.springframework.stereotype.Component;
 import vasyurin.work.services.LoggingService;
 
 @Aspect
+@Component
 public class LoggingAspect {
 
     @Around("execution(* vasyurin.work.services..*(..)) && !execution(* vasyurin.work.services.LoggingService.*(..))")

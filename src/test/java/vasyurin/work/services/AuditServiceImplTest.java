@@ -18,10 +18,14 @@ class AuditServiceImplTest {
     private AuditServiceImpl auditSpy;
     private List<String> capturedLogs;
 
+    public AuditServiceImplTest(AuditServiceImpl auditSpy) {
+        this.auditSpy = auditSpy;
+    }
+
     @BeforeEach
     void setUp() {
         capturedLogs = new ArrayList<>();
-        auditSpy = spy(AuditServiceImpl.getInstance());
+        auditSpy = spy(auditSpy);
 
         doAnswer(invocation -> {
             String log = invocation.getArgument(0);
@@ -46,7 +50,7 @@ class AuditServiceImplTest {
         auditSpy.log("Система перезапущена");
 
         assertEquals(1, capturedLogs.size());
-        assertTrue(capturedLogs.getFirst().contains("Система перезапущена"));
+        assertTrue(capturedLogs.get(0).contains("Система перезапущена"));
     }
 
     @Test
@@ -57,7 +61,7 @@ class AuditServiceImplTest {
         auditSpy.log(user, "Создан товар");
 
         assertEquals(1, capturedLogs.size());
-        String log = capturedLogs.getFirst();
+        String log = capturedLogs.get(0);
         assertTrue(log.contains("admin"));
         assertTrue(log.contains("Создан товар"));
     }

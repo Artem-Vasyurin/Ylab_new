@@ -1,45 +1,37 @@
 package vasyurin.work.controllers;
 
-import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
 import vasyurin.work.dto.Product;
 import vasyurin.work.services.ProductService;
+import vasyurin.work.services.ProductValidator;
 
 import java.util.List;
-import java.util.Optional;
 
+@RestController
+@RequestMapping("/catalog")
+@RequiredArgsConstructor
 public class CatalogController {
 
-    @Getter
-    private static final CatalogController instance = new CatalogController();
-
     private final ProductService productService;
+    private final ProductValidator validator;
 
-    private CatalogController() {
-        this.productService = ProductService.getInstance();
+    @GetMapping
+    public String getCatalog() {
+        return "Catalog is working!";
     }
 
-    public List<Product> getAll() {
-        return productService.getAll();
+    @PostMapping
+    public Object filter(@RequestBody Product filter) {
+
+        List<String> validationErrors = validator.validate(filter);
+        if (!validationErrors.isEmpty()) {
+            return new ErrorResponse(validationErrors);
+        }
+
+        return productService.getFilteredProducts(filter);
     }
 
-    public Optional<Product> getById(int id) {
-        return productService.getById(id);
+    record ErrorResponse(List<String> validationErrors) {
     }
-
-    public List<Product> getByName(String name) {
-        return productService.getByName(name);
-    }
-
-    public List<Product> getByCategory(String category) {
-        return productService.getByCategory(category);
-    }
-
-    public List<Product> getByPrice(int price) {
-        return productService.getByPrice(price);
-    }
-
-    public List<Product> getByBrand(String brand) {
-        return productService.getByBrand(brand);
-    }
-
 }

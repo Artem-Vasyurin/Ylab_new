@@ -88,7 +88,7 @@ class ProductRepositoryImplPostgresTest {
         List<ProductEntity> found = repository.findFilteredProducts(new ProductEntity());
         assertEquals(1, found.size());
         assertEquals("ProdNew", found.get(0).getName());
-        assertEquals(new BigDecimal("15.00"), found.getFirst().getPrice());
+        assertEquals(new BigDecimal("15.00"), found.get(0).getPrice());
 
     }
 

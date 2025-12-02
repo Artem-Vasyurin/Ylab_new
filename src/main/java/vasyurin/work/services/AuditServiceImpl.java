@@ -1,6 +1,7 @@
 package vasyurin.work.services;
 
-import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Service;
 import vasyurin.work.dto.User;
 
 import java.io.BufferedWriter;
@@ -8,14 +9,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDateTime;
 
+@Service
+@NoArgsConstructor
 public class AuditServiceImpl implements AuditService {
 
-    @Getter
-    private static final AuditServiceImpl instance = new AuditServiceImpl();
     private static final String FILE_PATH = "/app/logs/audit.log";
-
-    private AuditServiceImpl() {
-    }
 
     @Override
     public void log(User user, String action) {

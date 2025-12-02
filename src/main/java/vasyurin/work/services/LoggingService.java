@@ -1,10 +1,13 @@
 package vasyurin.work.services;
 
+import org.springframework.stereotype.Service;
+
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDateTime;
 
+@Service
 public class LoggingService {
 
     private static final String FILE_PATH = "/app/logs/execution.log";

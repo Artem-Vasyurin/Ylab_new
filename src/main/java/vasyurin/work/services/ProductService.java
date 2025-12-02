@@ -1,26 +1,25 @@
 package vasyurin.work.services;
 
-import lombok.Getter;
+import org.springframework.stereotype.Service;
 import vasyurin.work.annotations.AuditAction;
 import vasyurin.work.dto.Product;
 import vasyurin.work.entitys.ProductEntity;
 import vasyurin.work.repository.ProductRepository;
-import vasyurin.work.repository.ProductRepositoryImplPostgres;
 import vasyurin.work.utilites.ProductMapper;
 
 import java.util.List;
 
+@Service
 public class ProductService {
 
-    @Getter
-    private static final ProductService instance = new ProductService();
-
     private final ProductRepository productRepository;
-    private final ProductMapper mapper = ProductMapper.INSTANCE;
-    private final CacheService cacheService = CacheService.getInstance();
+    private final ProductMapper mapper;
+    private final CacheService cacheService;
 
-    private ProductService() {
-        this.productRepository = ProductRepositoryImplPostgres.getInstance();
+    public ProductService(ProductRepository productRepository, ProductMapper mapper, CacheService cacheService) {
+        this.productRepository = productRepository;
+        this.mapper = mapper;
+        this.cacheService = cacheService;
     }
 
     @AuditAction
