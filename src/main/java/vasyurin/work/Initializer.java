@@ -10,7 +10,6 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
 import org.springframework.web.servlet.DispatcherServlet;
 import vasyurin.work.configurations.CommonConfiguration;
 import vasyurin.work.configurations.LiquibaseConfig;
-import vasyurin.work.configurations.WebConfig;
 
 @WebListener
 @Slf4j
@@ -20,7 +19,7 @@ public class Initializer implements WebApplicationInitializer {
     public void onStartup(ServletContext servletContext) {
 
         AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-        context.register(WebConfig.class, CommonConfiguration.class, LiquibaseConfig.class);
+        context.register(CommonConfiguration.class, LiquibaseConfig.class);
         log.info("configuring web application context");
 
         context.setServletContext(servletContext);

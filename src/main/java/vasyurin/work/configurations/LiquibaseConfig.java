@@ -8,12 +8,30 @@ import liquibase.resource.ClassLoaderResourceAccessor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import vasyurin.work.utilites.ConnectionTemplate;
 
 import java.sql.Connection;
 import java.sql.Statement;
+
+/**
+ * Конфигурация и запуск Liquibase миграций для проекта.
+ * <p>
+ * Отвечает за:
+ * <ul>
+ *     <li>Создание схем в базе данных, если их нет</li>
+ *     <li>Инициализацию Liquibase с заданным changeLog</li>
+ *     <li>Применение миграций к базе данных</li>
+ * </ul>
+ * <p>
+ * Использует {@link ConnectionTemplate} для получения JDBC соединения.
+ * Свойства конфигурации берутся из environment:
+ * <ul>
+ *     <li>{@code liquibase.changeLog} — путь к Liquibase changelog файлу</li>
+ *     <li>{@code liquibase.defaultSchema} — схема по умолчанию для приложения</li>
+ *     <li>{@code liquibase.liquibaseSchemaName} — схема для внутренних таблиц Liquibase</li>
+ * </ul>
+ */
 
 @Slf4j
 @Component
@@ -29,7 +47,7 @@ public class LiquibaseConfig {
     private String liquibaseSchema;
 
     @Autowired
-    public LiquibaseConfig(ConnectionTemplate connectionTemplate, Environment env) {
+    public LiquibaseConfig(ConnectionTemplate connectionTemplate) {
         this.connectionTemplate = connectionTemplate;
     }
 
