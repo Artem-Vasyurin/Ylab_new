@@ -1,0 +1,49 @@
+<configuration>
+    <!--#########################################################################################################-->
+    <variable name="LOG_LOCATION" value="./logs"/>
+    <!--#########################################################################################################-->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <!--#########################################################################################################-->
+    <springProperty scope="context" name="app.env" source="app.target.env"/>
+    <!--#########################################################################################################-->
+    <appender name="CONSOLE"
+              class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <encoder>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <charset>${CONSOLE_LOG_CHARSET}</charset>
+        </encoder>
+    </appender>
+    <!--#########################################################################################################-->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <prudent>true</prudent>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_LOCATION}/log_%d{yyyy-MM-dd}_%i.log</fileNamePattern>
+            <maxHistory>1000</maxHistory>
+            <maxFileSize>${LOGGING_FILE_MAX_SIZE:-100MB}</maxFileSize>
+            <totalSizeCap>${LOGGING_FILE_TOTAL_SIZE:-1GB}</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread%X{cubaApp}%X{cubaUser}] %logger - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <!--#########################################################################################################-->
+
+    <root level="warn">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </root>
+
+    <logger name="vasyurin.work.aspectsOld" level="trace" additivity="true">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </logger>
+
+    <logger name="aspects" level="trace" additivity="true">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </logger>
+
+</configuration>

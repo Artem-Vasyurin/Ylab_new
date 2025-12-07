@@ -1,14 +1,15 @@
-# Stage 1: build WAR
-FROM maven:3.9-eclipse-temurin-21-alpine AS build
+# Stage 1 — Build
+FROM maven:3.9-eclipse-temurin-17-alpine AS build
 WORKDIR /app
-COPY pom.xml .
-COPY src ./src
+COPY . .
 RUN mvn clean package -DskipTests
 
-# Stage 2: Tomcat
-FROM tomcat:10.1-jdk21
-RUN rm -rf /usr/local/tomcat/webapps/ROOT
-COPY --from=build /app/target/*.war /usr/local/tomcat/webapps/ROOT.war
+# Stage 2 — Run
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+
+# Копируем jar из модуля myApp
+COPY --from=build /app/myApp/target/myApp-0.0.1-SNAPSHOT.jar app.jar
 
 EXPOSE 8080
-CMD ["catalina.sh", "run"]
+ENTRYPOINT ["java", "-jar", "app.jar"]

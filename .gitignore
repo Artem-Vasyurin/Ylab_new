@@ -40,7 +40,7 @@ build/
 audit.log
 metrics.log
 products.txt
-src/main/java/vasyurin/work/controllers/HelloController.java
+myApp/src/main/java/myApp/controllers/HelloController.java
 
 /logs/
 
