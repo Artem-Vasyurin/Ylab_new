@@ -1,164 +1,169 @@
 package vasyurin.work.repository;
 
 import lombok.Getter;
-import vasyurin.work.dto.Product;
+import lombok.extern.slf4j.Slf4j;
+import vasyurin.work.enams.ProductCategory;
+import vasyurin.work.entitys.ProductEntity;
 import vasyurin.work.utilites.ConnectionTemplate;
 
+import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
+@Slf4j
 public class ProductRepositoryImplPostgres implements ProductRepository {
 
     @Getter
     private static final ProductRepositoryImplPostgres instance = new ProductRepositoryImplPostgres();
 
+    private ProductRepositoryImplPostgres() {
+    }
 
     @Override
-    public void save(Product product) {
-        if (product.getId() == null) {
-            insert(product);
-        } else {
+    public void save(ProductEntity product) {
+
+        ProductEntity filter = new ProductEntity();
+        filter.setGtin(product.getGtin());
+
+        List<ProductEntity> existingList = findFilteredProducts(filter);
+
+        if (!existingList.isEmpty()) {
+            ProductEntity existing = existingList.getFirst();
+            product.setId(existing.getId());
             update(product);
+        } else {
+            insert(product);
         }
     }
 
-    private void insert(Product product) {
-        String sql = "INSERT INTO app_schema.products (name, description, category, price, brand) VALUES (?, ?, ?, ?, ?) RETURNING id";
+    private void insert(ProductEntity product) {
+        String sql = ProductSql.INSERT_PRODUCT;
+
         try (Connection conn = ConnectionTemplate.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, product.getName());
-            stmt.setString(2, product.getDescription());
-            stmt.setString(3, product.getCategory());
-            stmt.setInt(4, product.getPrice());
-            stmt.setString(5, product.getBrand());
-
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                product.setId(rs.getInt(1));
+            fillInsertParameters(product, preparedStatement);
+            try (ResultSet rs = preparedStatement.executeQuery()) {
+                if (rs.next()) {
+                    product.setId(rs.getInt("id"));
+                }
             }
         } catch (SQLException e) {
+            log.error(e.getMessage());
             throw new RuntimeException("Ошибка вставки продукта", e);
+
         }
     }
 
-    private void update(Product product) {
-        String sql = "UPDATE app_schema.products SET name=?, description=?, category=?, price=?, brand=? WHERE id=?";
+    private void update(ProductEntity product) {
+        String sql = ProductSql.UPDATE_PRODUCT;
+
         try (Connection conn = ConnectionTemplate.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, product.getName());
-            stmt.setString(2, product.getDescription());
-            stmt.setString(3, product.getCategory());
-            stmt.setInt(4, product.getPrice());
-            stmt.setString(5, product.getBrand());
-            stmt.setInt(6, product.getId());
+            fillInsertParameters(product, preparedStatement);
+            preparedStatement.setInt(7, product.getId());
 
-            stmt.executeUpdate();
+            preparedStatement.executeUpdate();
+
         } catch (SQLException e) {
+            log.error(e.getMessage());
             throw new RuntimeException("Ошибка обновления продукта", e);
         }
     }
 
     @Override
-    public List<Product> getAll() {
-        List<Product> products = new ArrayList<>();
-        String sql = "SELECT * FROM app_schema.products";
+    public List<ProductEntity> findFilteredProducts(ProductEntity filter) {
+
+        String sql = ProductSql.SELECT_FILTER_PRODUCT;
+
         try (Connection conn = ConnectionTemplate.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+             PreparedStatement st = conn.prepareStatement(sql)) {
+
+            Object[] values = new Object[]{
+                    filter.getGtin(), filter.getGtin(),
+                    filter.getName(), filter.getName(),
+                    filter.getDescription(), filter.getDescription(),
+                    filter.getCategory() == null ? null : filter.getCategory().name(),
+                    filter.getCategory() == null ? null : filter.getCategory().name(),
+                    filter.getPrice(), filter.getPrice(),
+                    filter.getBrand(), filter.getBrand()
+            };
+
+            int[] types = new int[]{
+                    Types.INTEGER, Types.INTEGER,
+                    Types.VARCHAR, Types.VARCHAR,
+                    Types.VARCHAR, Types.VARCHAR,
+                    Types.VARCHAR, Types.VARCHAR,
+                    Types.NUMERIC, Types.NUMERIC,
+                    Types.VARCHAR, Types.VARCHAR
+            };
+
+            for (int i = 0; i < values.length; i++) {
+                if (values[i] == null) {
+                    st.setNull(i + 1, types[i]);
+                } else {
+                    switch (types[i]) {
+                        case Types.INTEGER -> st.setInt(i + 1, (Integer) values[i]);
+                        case Types.VARCHAR -> st.setString(i + 1, (String) values[i]);
+                        case Types.NUMERIC -> st.setBigDecimal(i + 1, (BigDecimal) values[i]);
+                        default -> st.setObject(i + 1, values[i]);
+                    }
+                }
+            }
+
+            ResultSet rs = st.executeQuery();
+            List<ProductEntity> result = new ArrayList<>();
 
             while (rs.next()) {
-                products.add(mapRow(rs));
+                result.add(mapRow(rs));
             }
+
+            return result;
+
         } catch (SQLException e) {
-            throw new RuntimeException("Ошибка получения всех продуктов", e);
+            throw new RuntimeException(e);
         }
-        return products;
     }
 
+
     @Override
-    public Optional<Product> getById(int id) {
-        String sql = "SELECT * FROM app_schema.products WHERE id=?";
+    public void delete(Integer gtin) {
+        String sql = ProductSql.DELETE_PRODUCT;
+
         try (Connection conn = ConnectionTemplate.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
 
-            stmt.setInt(1, id);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return Optional.of(mapRow(rs));
-            }
+            preparedStatement.setInt(1, gtin);
+            preparedStatement.executeUpdate();
+
         } catch (SQLException e) {
-            throw new RuntimeException("Ошибка получения продукта по id", e);
-        }
-        return Optional.empty();
-    }
-
-    @Override
-    public List<Product> getByName(String name) {
-        return getByField("name", name);
-    }
-
-    @Override
-    public List<Product> getByCategory(String category) {
-        return getByField("category", category);
-    }
-
-    @Override
-    public List<Product> getByBrand(String brand) {
-        return getByField("brand", brand);
-    }
-
-    @Override
-    public List<Product> getByPrice(int price) {
-        return getByField("price", price);
-    }
-
-    @Override
-    public void delete(Product product) {
-        String sql = "DELETE FROM app_schema.products WHERE id=?";
-        try (Connection conn = ConnectionTemplate.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, product.getId());
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException("Ошибка удаления продукта", e);
+            throw new RuntimeException("Ошибка удаления продукта по GTIN", e);
         }
     }
 
-    private List<Product> getByField(String field, Object value) {
-        List<Product> products = new ArrayList<>();
-        String sql = "SELECT * FROM app_schema.products WHERE " + field + "=?";
-        try (Connection conn = ConnectionTemplate.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            if (value instanceof String) {
-                stmt.setString(1, (String) value);
-            } else if (value instanceof Integer) {
-                stmt.setInt(1, (Integer) value);
-            }
-
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                products.add(mapRow(rs));
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Ошибка получения продуктов по " + field, e);
-        }
-        return products;
-    }
-
-    private Product mapRow(ResultSet rs) throws SQLException {
-        return new Product(
+    private ProductEntity mapRow(ResultSet rs) throws SQLException {
+        return new ProductEntity(
                 rs.getInt("id"),
+                rs.getInt("gtin"),
                 rs.getString("name"),
                 rs.getString("description"),
-                rs.getString("category"),
-                rs.getInt("price"),
+                ProductCategory.valueOf(rs.getString("category")), // OK
+                rs.getBigDecimal("price"),
                 rs.getString("brand")
         );
     }
+
+    private void fillInsertParameters(ProductEntity product, PreparedStatement preparedStatement) throws SQLException {
+        preparedStatement.setInt(1, product.getGtin());
+        preparedStatement.setString(2, product.getName());
+        preparedStatement.setString(3, product.getDescription());
+        preparedStatement.setString(4, product.getCategory().name());
+        preparedStatement.setBigDecimal(5, product.getPrice());
+        preparedStatement.setString(6, product.getBrand());
+    }
+
 }
+
+

@@ -1,109 +1,104 @@
 package vasyurin.work.repository;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import vasyurin.work.dto.User;
-import vasyurin.work.utilites.ConnectionTemplate;
+import vasyurin.work.utilites.TestConnectionTemplate;
 
-import java.lang.reflect.Field;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
-import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Testcontainers
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class UserRepositoryImplPostgresTest {
+public class UserRepositoryImplPostgresTest {
 
-    static PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>("postgres:15.4")
-            .withDatabaseName("testdb_users")
-            .withUsername("testuser")
-            .withPassword("testpass");
+    private static final PostgreSQLContainer<?> postgres =
+            new PostgreSQLContainer<>("postgres:15")
+                    .withDatabaseName("testdb")
+                    .withUsername("test")
+                    .withPassword("test");
 
-    private static final String SCHEMA = "app_schema";
-    private UserRepositoryImplPostgres repository;
+    private static TestConnectionTemplate testConn;
+
+    private UserRepository repository;
+
+    private static void createSchemaAndTables() throws SQLException {
+        try (Connection connection = testConn.getConnection();
+             Statement statement = connection.createStatement()) {
+
+            statement.execute(UserSqlTest.CREATE_SCHEMA_USERS);
+
+            String sql = UserSqlTest.CREATE_TABLE_USERS;
+            statement.execute(sql);
+        }
+    }
 
     @BeforeAll
-    void setUp() throws Exception {
-        POSTGRES.start();
+    void setup() throws Exception {
+        postgres.start();
 
-        setPrivateStaticField(ConnectionTemplate.class, "URL", POSTGRES.getJdbcUrl());
-        setPrivateStaticField(ConnectionTemplate.class, "USER", POSTGRES.getUsername());
-        setPrivateStaticField(ConnectionTemplate.class, "PASSWORD", POSTGRES.getPassword());
+        testConn = new TestConnectionTemplate(
+                postgres.getJdbcUrl(),
+                postgres.getUsername(),
+                postgres.getPassword()
+        );
 
-        try (Connection conn = POSTGRES.createConnection("");
-             Statement stmt = conn.createStatement()) {
+        repository = new UserRepositoryForTest(testConn);
 
-            stmt.execute("CREATE SCHEMA IF NOT EXISTS " + SCHEMA);
-            stmt.execute("CREATE TABLE IF NOT EXISTS " + SCHEMA + ".users (" +
-                    "username VARCHAR(255) PRIMARY KEY," +
-                    "password VARCHAR(255) NOT NULL," +
-                    "role VARCHAR(64) NOT NULL" +
-                    ")");
-        }
-
-        repository = UserRepositoryImplPostgres.getInstance();
+        createSchemaAndTables();
     }
 
-    @AfterEach
-    void clean() throws Exception {
-        try (Connection conn = POSTGRES.createConnection("");
-             Statement stmt = conn.createStatement()) {
-            stmt.execute("DELETE FROM " + SCHEMA + ".users");
+    @BeforeEach
+    void cleanTable() throws Exception {
+        try (Connection conn = testConn.getConnection();
+             Statement st = conn.createStatement()) {
+
+            st.execute(UserSqlTest.DELETE_TABELE_USERS);
         }
     }
 
-    @AfterAll
-    void tearDown() {
-        POSTGRES.stop();
-    }
-
     @Test
-    @Order(1)
-    void saveAndFind_shouldWork() {
-        User u = new User("ivan", "111", "ADMIN");
+    void testInsert() throws Exception {
+        User u = new User("test", "123", "USER", "t1");
         repository.save(u);
 
-        Optional<User> found = repository.findByUsername("ivan");
+        var found = repository.findByUsername("test");
 
         assertTrue(found.isPresent());
-        assertEquals("111", found.get().getPassword());
-        assertEquals("ADMIN", found.get().getRole());
+        assertEquals("123", found.get().getPassword());
     }
 
     @Test
-    @Order(2)
-    void update_shouldWork() {
-        User u = new User("kate", "pwd", "USER");
+    void testUpdate() throws Exception {
+        User u = new User("john", "pass1", "USER", "tok1");
         repository.save(u);
 
-        u.setPassword("new");
-        u.setRole("ADMIN");
-        repository.save(u);
+        User u2 = new User("john", "pass2", "ADMIN", "tok2");
+        repository.save(u2);
 
-        Optional<User> found = repository.findByUsername("kate");
+        var f = repository.findByUsername("john");
 
-        assertTrue(found.isPresent());
-        assertEquals("new", found.get().getPassword());
-        assertEquals("ADMIN", found.get().getRole());
+        assertTrue(f.isPresent());
+        assertEquals("pass2", f.get().getPassword());
+        assertEquals("ADMIN", f.get().getRole());
     }
 
     @Test
-    @Order(3)
-    void getAll_shouldReturnAll() {
-        repository.save(new User("u1", "1", "USER"));
-        repository.save(new User("u2", "2", "ADMIN"));
+    void testGetAll() throws Exception {
+        repository.save(new User("u1", "p1", "R1", "t1"));
+        repository.save(new User("u2", "p2", "R2", "t2"));
 
-        List<User> all = repository.getAll();
+        List<User> list = repository.getAll();
 
-        assertEquals(2, all.size());
-    }
-
-    private static void setPrivateStaticField(Class<?> clazz, String name, Object value) throws Exception {
-        Field f = clazz.getDeclaredField(name);
-        f.setAccessible(true);
-        f.set(null, value);
+        assertEquals(2, list.size());
     }
 }

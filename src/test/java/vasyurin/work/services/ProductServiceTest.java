@@ -2,91 +2,83 @@ package vasyurin.work.services;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import vasyurin.work.dto.Product;
+import vasyurin.work.entitys.ProductEntity;
 import vasyurin.work.repository.ProductRepository;
+import vasyurin.work.utilites.ProductMapper;
+import vasyurin.work.utilites.TestReflectionUtils;
 
 import java.util.List;
-import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
-class ProductServiceTest {
+@Testcontainers
+public class ProductServiceTest {
 
-    private ProductRepository productRepository;
-    private CacheService cacheService;
     private ProductService productService;
+    private ProductRepository productRepositoryMock;
+    private ProductMapper mapperMock;
+    private CacheService cacheServiceMock;
 
     @BeforeEach
     void setUp() {
-        productRepository = mock(ProductRepository.class);
-        cacheService = mock(CacheService.class);
         productService = ProductService.getInstance();
 
-        TestReflectionUtils.setField(productService, "productRepository", productRepository);
-        TestReflectionUtils.setField(productService, "cacheService", cacheService);;
+        productRepositoryMock = mock(ProductRepository.class);
+        mapperMock = mock(ProductMapper.class);
+        cacheServiceMock = mock(CacheService.class);
+
+        TestReflectionUtils.setField(productService, "productRepository", productRepositoryMock);
+        TestReflectionUtils.setField(productService, "mapper", mapperMock);
+        TestReflectionUtils.setField(productService, "cacheService", cacheServiceMock);
     }
 
     @Test
-    void getAll() {
-        List<Product> expected = List.of(new Product(1, "Машина", "Быстрая", "транспорт", 10_000, "БМВ"));
-        when(productRepository.getAll()).thenReturn(expected);
+    void testGetFilteredProducts_CacheMiss() {
+        Product filter = new Product();
+        ProductEntity filterEntity = new ProductEntity();
 
-        List<Product> result = productService.getAll();
+        ProductEntity entity1 = new ProductEntity();
+        entity1.setGtin(1);
+        Product dto1 = new Product();
+        dto1.setGtin(1);
 
-        assertEquals(expected, result);
-        verify(productRepository).getAll();
+        ProductEntity entity2 = new ProductEntity();
+        entity2.setGtin(2);
+        Product dto2 = new Product();
+        dto2.setGtin(2);
+
+        when(cacheServiceMock.get(filter)).thenReturn(null);
+        when(mapperMock.toEntity(filter)).thenReturn(filterEntity);
+        when(productRepositoryMock.findFilteredProducts(filterEntity)).thenReturn(List.of(entity1, entity2));
+        when(mapperMock.toDto(entity1)).thenReturn(dto1);
+        when(mapperMock.toDto(entity2)).thenReturn(dto2);
+
+        List<Product> result = productService.getFilteredProducts(filter);
+
+        assertEquals(2, result.size());
+        assertEquals(1, result.get(0).getGtin());
+        assertEquals(2, result.get(1).getGtin());
+
+        verify(cacheServiceMock).put(filter, result);
     }
 
     @Test
-    void getById() {
-        Product product = new Product(1, "Машина", "Красивая", "транспорт", 10_000_000, "кёнигсен");
-        when(productRepository.getById(1)).thenReturn(Optional.of(product));
+    void testGetFilteredProducts_CacheHit() {
+        Product filter = new Product();
+        Product cachedProduct = new Product();
+        cachedProduct.setGtin(99);
 
-        Optional<Product> result = productService.getById(1);
+        when(cacheServiceMock.get(filter)).thenReturn(List.of(cachedProduct));
 
-        assertTrue(result.isPresent());
-        assertEquals(product, result.get());
-        verify(productRepository).getById(1);
-    }
+        List<Product> result = productService.getFilteredProducts(filter);
 
-    @Test
-    void getByName() {
-        when(cacheService.getByName("Кот")).thenReturn(List.of(new Product()));
+        assertEquals(1, result.size());
+        assertEquals(99, result.get(0).getGtin());
 
-        productService.getByName("Кот");
-
-        verify(cacheService).getByName("Кот");
-        verifyNoInteractions(productRepository);
-    }
-
-    @Test
-    void getByCategory() {
-        when(cacheService.getByCategory("Одежда")).thenReturn(List.of(new Product()));
-
-        productService.getByCategory("Одежда");
-
-        verify(cacheService).getByCategory("Одежда");
-        verifyNoInteractions(productRepository);
-    }
-
-    @Test
-    void getByBrand() {
-        when(cacheService.getByBrand("Гучи")).thenReturn(List.of(new Product()));
-
-        productService.getByBrand("Гучи");
-
-        verify(cacheService).getByBrand("Гучи");
-        verifyNoInteractions(productRepository);
-    }
-
-    @Test
-    void getByPrice() {
-        when(cacheService.getByPrice(199)).thenReturn(List.of(new Product()));
-
-        productService.getByPrice(199);
-
-        verify(cacheService).getByPrice(199);
-        verifyNoInteractions(productRepository);
+        verifyNoInteractions(productRepositoryMock);
+        verifyNoInteractions(mapperMock);
     }
 }

@@ -41,3 +41,5 @@ audit.log
 metrics.log
 products.txt
 
+/logs/
+
