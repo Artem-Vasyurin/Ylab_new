@@ -11,7 +11,5 @@ public interface UserRepository {
 
     Optional<User> findByUsername(String username);
 
-    Optional<User> findByToken(String token);
-
     List<User> getAll();
 }

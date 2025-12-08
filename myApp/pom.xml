@@ -18,16 +18,37 @@
     </parent>
 
     <properties>
+        <!-- Java -->
         <java.version>17</java.version>
 
-        <springdoc-openapi.version>2.2.0</springdoc-openapi.version>
+        <!-- SpringDoc OpenAPI -->
+        <springdoc.version>2.2.0</springdoc.version>
+
+        <!-- MapStruct -->
         <mapstruct.version>1.6.3</mapstruct.version>
+
+        <!-- Lombok -->
         <lombok.version>1.18.38</lombok.version>
 
+        <!-- Liquibase -->
         <liquibase.version>5.0.1</liquibase.version>
+
+        <!-- PostgreSQL -->
         <postgresql.version>42.7.8</postgresql.version>
 
+        <!-- Testcontainers -->
         <testcontainers.version>1.19.3</testcontainers.version>
+
+        <instancio-junit>5.5.1</instancio-junit>
+
+        <!-- JJWT -->
+        <jjwt.version>0.11.5</jjwt.version>
+
+        <!-- Local modules -->
+        <localmodules.version>0.0.1</localmodules.version>
+
+        <!-- Maven Compiler -->
+        <maven.compiler.plugin.version>3.11.0</maven.compiler.plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -43,32 +64,30 @@
     </dependencyManagement>
 
     <dependencies>
-
+        <!-- JWT -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
-            <version>0.11.5</version>
+            <version>${jjwt.version}</version>
         </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-impl</artifactId>
-            <version>0.11.5</version>
+            <version>${jjwt.version}</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-jackson</artifactId>
-            <version>0.11.5</version>
+            <version>${jjwt.version}</version>
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Web -->
+        <!-- Spring Boot -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-
-        <!-- AOP -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
@@ -78,17 +97,15 @@
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>${springdoc-openapi.version}</version>
+            <version>${springdoc.version}</version>
         </dependency>
 
-        <!-- Liquibase -->
+        <!-- Database -->
         <dependency>
             <groupId>org.liquibase</groupId>
             <artifactId>liquibase-core</artifactId>
             <version>${liquibase.version}</version>
         </dependency>
-
-        <!-- PostgreSQL -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
@@ -116,48 +133,57 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-
-        <!-- Testcontainers Core -->
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers</artifactId>
             <scope>test</scope>
         </dependency>
-
-        <!-- Testcontainers JUnit 5 — обязательно для @Testcontainers -->
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
-
-        <!-- PostgreSQL Testcontainer -->
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>postgresql</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.instancio</groupId>
+            <artifactId>instancio-junit</artifactId>
+            <version>${instancio-junit}</version>
+            <scope>test</scope>
+        </dependency>
 
+        <!-- Local modules -->
         <dependency>
             <groupId>vasyurin.work</groupId>
             <artifactId>aspectsModule</artifactId>
-            <version>0.0.1</version>
+            <version>${localmodules.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>vasyurin.work</groupId>
+            <artifactId>audit-starter</artifactId>
+            <version>${localmodules.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
     </dependencies>
-
     <build>
         <plugins>
-
+            <!-- Spring Boot Maven Plugin -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
 
+            <!-- Compiler Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
+                <version>${maven.compiler.plugin.version}</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
@@ -179,7 +205,6 @@
                     </compilerArgs>
                 </configuration>
             </plugin>
-
         </plugins>
     </build>
 </project>

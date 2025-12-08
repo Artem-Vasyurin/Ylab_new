@@ -18,7 +18,4 @@ public class UserSql {
             SELECT username, password, role, token FROM app_schema.users
             """;
 
-    public static final String SELECT_BY_TOKEN_USER = """
-            SELECT username, password, role, token FROM app_schema.users WHERE token=?
-            """;
 }

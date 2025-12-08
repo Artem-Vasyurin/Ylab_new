@@ -5,6 +5,7 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Service;
 import vasyurin.work.dto.User;
 import vasyurin.work.enams.UserRole;
+import vasyurin.work.services.interfases.JwtService;
 
 
 import java.security.Key;

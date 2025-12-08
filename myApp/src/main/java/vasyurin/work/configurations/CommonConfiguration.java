@@ -1,16 +1,15 @@
 package vasyurin.work.configurations;
 
-import annotations.EnableAuditAspect;
+import annotationsAudit.EnableAuditAspect;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityScheme;
-import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.*;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import vasyurin.work.utilites.YamlPropertySourceFactory;
 
 /**
  * Главная конфигурация приложения для чистого Spring MVC.
@@ -21,7 +20,7 @@ import vasyurin.work.utilites.YamlPropertySourceFactory;
  *     <li>Подключение property source (application.yaml)</li>
  *     <li>Включение AOP</li>
  *     <li>Swagger UI и статический HTML</li>
- *     <li>Общие бины, такие как ObjectMapper и OpenAPI</li>
+ *     <li>Общие бины, такие, как ObjectMapper и OpenAPI</li>
  * </ul>
  */
 @EnableAuditAspect
@@ -29,7 +28,7 @@ import vasyurin.work.utilites.YamlPropertySourceFactory;
 @EnableWebMvc
 @EnableAspectJAutoProxy
 @ComponentScan(basePackages = "vasyurin.work")
-@PropertySource(value = "classpath:application.yaml", factory = YamlPropertySourceFactory.class)
+@PropertySource(value = "classpath:application.yaml")
 public class CommonConfiguration implements WebMvcConfigurer {
 
     /**
@@ -66,7 +65,7 @@ public class CommonConfiguration implements WebMvcConfigurer {
                         .title("Y_LAB API")
                         .version("1.0")
                         .description("Swagger с JWT авторизацией"))
-                .components(new io.swagger.v3.oas.models.Components()
+                .components(new Components()
                         .addSecuritySchemes("bearerAuth",
                                 new SecurityScheme()
                                         .type(SecurityScheme.Type.HTTP)
@@ -74,4 +73,5 @@ public class CommonConfiguration implements WebMvcConfigurer {
                                         .bearerFormat("JWT")
                         ));
     }
+
 }

@@ -8,6 +8,7 @@ import liquibase.resource.ClassLoaderResourceAccessor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import vasyurin.work.utilites.ConnectionTemplate;
 
@@ -35,6 +36,7 @@ import java.sql.Statement;
 
 @Slf4j
 @Component
+@Profile("!test")
 public class LiquibaseConfig {
 
     private static final String CREATE_SCHEMA_QUERY = "CREATE SCHEMA IF NOT EXISTS ";

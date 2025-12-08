@@ -14,10 +14,6 @@ public class ProductSql {
                 WHERE id=?
                 """;
 
-    public static final String SELECT_ALL_PRODUCT = """
-            SELECT * FROM app_schema.products
-            """;
-
     public static final String SELECT_FILTER_PRODUCT = """
         SELECT * FROM app_schema.products
         WHERE (? IS NULL OR gtin = ?)

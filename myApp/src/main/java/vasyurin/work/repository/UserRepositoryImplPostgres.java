@@ -89,31 +89,6 @@ public class UserRepositoryImplPostgres implements UserRepository {
     }
 
     @Override
-    public Optional<User> findByToken(String token) {
-        String sql = UserSql.SELECT_BY_TOKEN_USER;
-        try (Connection conn = connectionTemplate.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, token);
-            ResultSet rs = ps.executeQuery();
-
-            if (rs.next()) {
-                User user = new User(
-                        rs.getString("username"),
-                        rs.getString("password"),
-                        UserRole.valueOf(rs.getString("role")),
-                        rs.getString("token")
-                );
-                return Optional.of(user);
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Ошибка поиска пользователя по token", e);
-        }
-        return Optional.empty();
-    }
-
-    @Override
     public List<User> getAll() {
         List<User> users = new ArrayList<>();
         String sql = UserSql.SELECT_ALL_USER;

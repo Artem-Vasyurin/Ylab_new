@@ -1,10 +1,12 @@
 package vasyurin.work.services.security;
 
+import annotations.LoggingServices;
 import io.jsonwebtoken.JwtException;
 import org.springframework.stereotype.Service;
-import annotations.LoggingServices;
 import vasyurin.work.dto.User;
 import vasyurin.work.repository.UserRepository;
+import vasyurin.work.services.interfases.JwtService;
+import vasyurin.work.services.interfases.SecurityService;
 
 import java.util.Optional;
 
@@ -23,6 +25,9 @@ public class SecurityServiceImpl implements SecurityService {
     @Override
     @LoggingServices
     public Optional<String> login(User loginRequest) {
+        if (loginRequest == null || loginRequest.getUsername() == null || loginRequest.getPassword() == null) {
+            return Optional.empty();
+        }
         Optional<User> userOpt = userRepository.findByUsername(loginRequest.getUsername());
         if (userOpt.isPresent() && userOpt.get().getPassword().equals(loginRequest.getPassword())) {
 
@@ -34,8 +39,9 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     public Optional<User> parseToken(String token) {
+        if (token == null) return Optional.empty();
         try {
-            return Optional.of(jwtService.parseToken(token));
+            return Optional.ofNullable(jwtService.parseToken(token));
         } catch (JwtException e) {
             return Optional.empty();
         }

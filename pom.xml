@@ -13,6 +13,7 @@
     <modules>
         <module>myApp</module>
         <module>aspectsModule</module>
+        <module>audit-starter</module>
     </modules>
 
     <parent>
