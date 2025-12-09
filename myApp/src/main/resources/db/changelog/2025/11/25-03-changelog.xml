@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+           http://www.liquibase.org/xml/ns/dbchangelog
+           http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.21.xsd">
+
+    <changeSet id="1" author="vasyurin">
+        <insert tableName="products" schemaName="app_schema">
+            <column name="id" valueSequenceNext="product_seq"/>
+            <column name="gtin" value="96385074"/>
+            <column name="name" value="Телефон"/>
+            <column name="description" value="Смартфон с большим экраном"/>
+            <column name="category" value="ELECTRONICS"/>
+            <column name="price" valueNumeric="50000"/>
+            <column name="brand" value="Samsung"/>
+        </insert>
+
+        <insert tableName="products" schemaName="app_schema">
+            <column name="id" valueSequenceNext="product_seq"/>
+            <column name="gtin" value="55123457"/>
+            <column name="name" value="Ноутбук"/>
+            <column name="description" value="Игровой ноутбук"/>
+            <column name="category" value="ELECTRONICS"/>
+            <column name="price" valueNumeric="120000"/>
+            <column name="brand" value="Asus"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>

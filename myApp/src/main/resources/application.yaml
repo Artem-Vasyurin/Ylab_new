@@ -1,0 +1,9 @@
+db:
+  url: jdbc:postgresql://postgres:5432/mymarket_service
+  username: artem
+  password: 123
+
+liquibase:
+  changeLog: db/changelog/db.changelog-master.xml
+  defaultSchema: app_schema
+  liquibaseSchemaName: service_schema

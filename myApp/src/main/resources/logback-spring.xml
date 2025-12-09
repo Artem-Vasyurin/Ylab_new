@@ -1,0 +1,74 @@
+<configuration>
+    <!--#########################################################################################################-->
+    <variable name="LOG_LOCATION" value="./logs"/>
+    <!--#########################################################################################################-->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <!--#########################################################################################################-->
+    <springProperty scope="context" name="app.env" source="app.target.env"/>
+    <!--#########################################################################################################-->
+    <appender name="CONSOLE"
+              class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <encoder>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <charset>${CONSOLE_LOG_CHARSET}</charset>
+        </encoder>
+    </appender>
+    <!--#########################################################################################################-->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <prudent>true</prudent>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_LOCATION}/systemLog_%d{yyyy-MM-dd}_%i.log</fileNamePattern>
+            <maxHistory>1000</maxHistory>
+            <maxFileSize>${LOGGING_FILE_MAX_SIZE:-100MB}</maxFileSize>
+            <totalSizeCap>${LOGGING_FILE_TOTAL_SIZE:-1GB}</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread%X{cubaApp}%X{cubaUser}] %logger - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <!--#########################################################################################################-->
+    <appender name="AUDIT_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>./logs/audit_%d{yyyy-MM-dd}_%i.log</fileNamePattern>
+            <maxHistory>1000</maxHistory>
+            <maxFileSize>${LOGGING_FILE_MAX_SIZE:-100MB}</maxFileSize>
+            <totalSizeCap>${LOGGING_FILE_TOTAL_SIZE:-1GB}</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <!--#########################################################################################################-->
+    <appender name="LOGGING_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>./logs/logging_%d{yyyy-MM-dd}_%i.log</fileNamePattern>
+            <maxFileSize>${LOGGING_FILE_MAX_SIZE:-100MB}</maxFileSize>
+            <totalSizeCap>${LOGGING_FILE_TOTAL_SIZE:-1GB}</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="warn">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </root>
+
+    <logger name="vasyurin.work" level="trace" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </logger>
+
+    <logger name="auditaspect" level="trace" additivity="false">
+        <appender-ref ref="AUDIT_FILE"/>
+    </logger>
+
+    <logger name="loggermetricksaspect.aspects.LoggingAspect" level="trace" additivity="false">
+        <appender-ref ref="LOGGING_FILE"/>
+    </logger>
+
+</configuration>
