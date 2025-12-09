@@ -1,68 +1,66 @@
 package vasyurin.work.configurations;
 
-import liquibase.Liquibase;
-import liquibase.database.Database;
-import liquibase.database.DatabaseFactory;
-import liquibase.database.jvm.JdbcConnection;
-import liquibase.resource.ClassLoaderResourceAccessor;
-import lombok.Getter;
-import lombok.experimental.StandardException;
-import lombok.extern.slf4j.Slf4j;
-import vasyurin.work.utilites.ConnectionTemplate;
-
-import java.sql.Connection;
-import java.sql.Statement;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import org.springframework.context.annotation.*;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import vasyurin.work.utilites.YamlPropertySourceFactory;
 
 /**
- * Конфигурационный класс, отвечающий за инициализацию схем
- * и выполнение миграций базы данных с помощью Liquibase.
+ * Главная конфигурация приложения для чистого Spring MVC.
+ * <p>
+ * Объединяет:
+ * <ul>
+ *     <li>Сканирование компонентов</li>
+ *     <li>Подключение property source (application.yaml)</li>
+ *     <li>Включение AOP</li>
+ *     <li>Swagger UI и статический HTML</li>
+ *     <li>Общие бины, такие как ObjectMapper и OpenAPI</li>
+ * </ul>
  */
+@Configuration
+@EnableWebMvc
+@EnableAspectJAutoProxy
+@ComponentScan(basePackages = "vasyurin.work")
+@PropertySource(value = "classpath:application.yaml", factory = YamlPropertySourceFactory.class)
+public class CommonConfiguration implements WebMvcConfigurer {
 
-@Slf4j
-public class CommonConfiguration {
+    /**
+     * Настройка Swagger UI через WebJar и статический HTML.
+     *
+     * @param registry ResourceHandlerRegistry
+     */
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/swagger-ui/**")
+                .addResourceLocations("classpath:/META-INF/resources/webjars/swagger-ui/4.15.5/");
 
-    @Getter
-    private static final CommonConfiguration instance = new CommonConfiguration();
-
-    private static final String CHANGELOG = ConfigurationReader.readConfiguration().liquibase().changeLog();
-    private static final String DEFAULT_SCHEMA = ConfigurationReader.readConfiguration().liquibase().defaultSchema();
-    private static final String LIQUIBASE_SCHEMA = ConfigurationReader.readConfiguration().liquibase().liquibaseSchemaName();
-    private static final String CREATE_SCHEMA_QUERY = "CREATE SCHEMA IF NOT EXISTS ";
-
-
-    private CommonConfiguration() {
+        registry.addResourceHandler("/swagger.html")
+                .addResourceLocations("classpath:/static/swagger.html");
     }
 
-    public void runLiquibase() {
-        log.info("Starting Liquibase ...");
-
-        try (Connection conn = ConnectionTemplate.getConnection()) {
-
-            try (Statement statement = conn.createStatement()) {
-                statement.execute(CREATE_SCHEMA_QUERY + DEFAULT_SCHEMA);
-                statement.execute(CREATE_SCHEMA_QUERY + LIQUIBASE_SCHEMA);
-            }
-
-            Database database = DatabaseFactory.getInstance()
-                    .findCorrectDatabaseImplementation(new JdbcConnection(conn));
-
-            database.setDefaultSchemaName(DEFAULT_SCHEMA);
-            database.setLiquibaseSchemaName(LIQUIBASE_SCHEMA);
-
-            Liquibase liquibase = new Liquibase(
-                    CHANGELOG,
-                    new ClassLoaderResourceAccessor(),
-                    database
-            );
-
-            liquibase.update("");
-
-        } catch (Exception e) {
-            throw new CommonConfiguration.CommonConfigurationException(e.getMessage(), e);
-        }
+    /**
+     * Бин ObjectMapper для JSON сериализации/десериализации.
+     */
+    @Bean
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper();
     }
 
-    @StandardException
-    public static class CommonConfigurationException extends RuntimeException {
+    /**
+     * Настройка OpenAPI для Swagger.
+     *
+     * @return OpenAPI объект с информацией о проекте
+     */
+    @Bean
+    public OpenAPI customOpenAPI() {
+        return new OpenAPI()
+                .info(new Info()
+                        .title("Y_LAB API")
+                        .version("1.0")
+                        .description("Swagger без Spring Boot (очень тяжело)"));
     }
 }

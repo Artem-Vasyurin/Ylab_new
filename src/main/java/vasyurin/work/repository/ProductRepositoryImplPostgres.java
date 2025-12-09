@@ -1,7 +1,7 @@
 package vasyurin.work.repository;
 
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Repository;
 import vasyurin.work.enams.ProductCategory;
 import vasyurin.work.entitys.ProductEntity;
 import vasyurin.work.utilites.ConnectionTemplate;
@@ -12,12 +12,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
+@Repository
 public class ProductRepositoryImplPostgres implements ProductRepository {
 
-    @Getter
-    private static final ProductRepositoryImplPostgres instance = new ProductRepositoryImplPostgres();
+    private final ConnectionTemplate connectionTemplate;
 
-    private ProductRepositoryImplPostgres() {
+    public ProductRepositoryImplPostgres(ConnectionTemplate connectionTemplate) {
+        this.connectionTemplate = connectionTemplate;
     }
 
     @Override
@@ -29,8 +30,8 @@ public class ProductRepositoryImplPostgres implements ProductRepository {
         List<ProductEntity> existingList = findFilteredProducts(filter);
 
         if (!existingList.isEmpty()) {
-            ProductEntity existing = existingList.getFirst();
-            product.setId(existing.getId());
+            ProductEntity first = existingList.get(0);
+            product.setId(first.getId());
             update(product);
         } else {
             insert(product);
@@ -40,7 +41,7 @@ public class ProductRepositoryImplPostgres implements ProductRepository {
     private void insert(ProductEntity product) {
         String sql = ProductSql.INSERT_PRODUCT;
 
-        try (Connection conn = ConnectionTemplate.getConnection();
+        try (Connection conn = connectionTemplate.getConnection();
              PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
 
             fillInsertParameters(product, preparedStatement);
@@ -59,7 +60,7 @@ public class ProductRepositoryImplPostgres implements ProductRepository {
     private void update(ProductEntity product) {
         String sql = ProductSql.UPDATE_PRODUCT;
 
-        try (Connection conn = ConnectionTemplate.getConnection();
+        try (Connection conn = connectionTemplate.getConnection();
              PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
 
             fillInsertParameters(product, preparedStatement);
@@ -78,7 +79,7 @@ public class ProductRepositoryImplPostgres implements ProductRepository {
 
         String sql = ProductSql.SELECT_FILTER_PRODUCT;
 
-        try (Connection conn = ConnectionTemplate.getConnection();
+        try (Connection conn = connectionTemplate.getConnection();
              PreparedStatement st = conn.prepareStatement(sql)) {
 
             Object[] values = new Object[]{
@@ -132,7 +133,7 @@ public class ProductRepositoryImplPostgres implements ProductRepository {
     public void delete(Integer gtin) {
         String sql = ProductSql.DELETE_PRODUCT;
 
-        try (Connection conn = ConnectionTemplate.getConnection();
+        try (Connection conn = connectionTemplate.getConnection();
              PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
 
             preparedStatement.setInt(1, gtin);

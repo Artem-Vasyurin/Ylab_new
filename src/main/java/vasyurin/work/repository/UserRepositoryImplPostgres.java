@@ -1,8 +1,7 @@
 package vasyurin.work.repository;
 
-import lombok.Getter;
+import org.springframework.stereotype.Repository;
 import vasyurin.work.dto.User;
-import vasyurin.work.utilites.ConnectionProvider;
 import vasyurin.work.utilites.ConnectionTemplate;
 
 import java.sql.*;
@@ -10,10 +9,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public class UserRepositoryImplPostgres implements UserRepository {
 
-    @Getter
-    private static final UserRepositoryImplPostgres instance = new UserRepositoryImplPostgres();
+    private final ConnectionTemplate connectionTemplate;
+
+    public UserRepositoryImplPostgres(ConnectionTemplate connectionTemplate) {
+        this.connectionTemplate = connectionTemplate;
+    }
 
 
     @Override
@@ -28,7 +31,7 @@ public class UserRepositoryImplPostgres implements UserRepository {
 
     private void insert(User user) {
         String sql = UserSql.INSERT_USER;
-        try (Connection conn = ConnectionTemplate.getConnection();
+        try (Connection conn = connectionTemplate.getConnection();
              PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
 
             preparedStatement.setString(1, user.getUsername());
@@ -45,7 +48,7 @@ public class UserRepositoryImplPostgres implements UserRepository {
 
     private void update(User user) {
         String sql = UserSql.UPDATE_USER;
-        try (Connection conn = ConnectionTemplate.getConnection();
+        try (Connection conn = connectionTemplate.getConnection();
              PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
 
             preparedStatement.setString(1, user.getPassword());
@@ -63,7 +66,7 @@ public class UserRepositoryImplPostgres implements UserRepository {
     @Override
     public Optional<User> findByUsername(String username) {
         String sql = UserSql.SELECT_BY_USERNAME_USER;
-        try (Connection conn = ConnectionTemplate.getConnection();
+        try (Connection conn = connectionTemplate.getConnection();
              PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
 
             preparedStatement.setString(1, username);
@@ -89,7 +92,7 @@ public class UserRepositoryImplPostgres implements UserRepository {
     public List<User> getAll() {
         List<User> users = new ArrayList<>();
         String sql = UserSql.SELECT_ALL_USER;
-        try (Connection conn = ConnectionTemplate.getConnection();
+        try (Connection conn = connectionTemplate.getConnection();
              Statement statement = conn.createStatement();
              ResultSet rs = statement.executeQuery(sql)) {
 

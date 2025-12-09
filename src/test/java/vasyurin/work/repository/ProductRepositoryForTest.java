@@ -26,7 +26,7 @@ public class ProductRepositoryForTest implements ProductRepository {
         List<ProductEntity> existingList = findFilteredProducts(filter);
 
         if (!existingList.isEmpty()) {
-            ProductEntity existing = existingList.getFirst();
+            ProductEntity existing = existingList.get(0);
             product.setId(existing.getId());
             update(product);
         } else {

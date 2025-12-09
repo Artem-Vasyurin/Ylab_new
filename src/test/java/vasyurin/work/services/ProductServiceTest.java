@@ -22,9 +22,12 @@ public class ProductServiceTest {
     private ProductMapper mapperMock;
     private CacheService cacheServiceMock;
 
+    public ProductServiceTest(ProductService productService) {
+        this.productService = productService;
+    }
+
     @BeforeEach
     void setUp() {
-        productService = ProductService.getInstance();
 
         productRepositoryMock = mock(ProductRepository.class);
         mapperMock = mock(ProductMapper.class);
