@@ -19,4 +19,3 @@ public class ProductEntity {
     private BigDecimal price;
     private String brand;
 }
-

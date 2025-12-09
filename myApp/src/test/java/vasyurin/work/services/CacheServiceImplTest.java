@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import vasyurin.work.dto.Product;
+import vasyurin.work.services.interfases.CacheService;
 
 import java.util.List;
 
@@ -12,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class CacheServiceImplTest {
 
-    private CacheServiceImpl cacheServiceImpl;
+    private CacheService cacheServiceImpl;
 
     @BeforeEach
     void setUp() {
@@ -28,6 +29,7 @@ class CacheServiceImplTest {
 
         Product p1 = Instancio.create(Product.class);
         p1.setGtin(10);
+
         Product p2 = Instancio.create(Product.class);
         p2.setGtin(20);
 

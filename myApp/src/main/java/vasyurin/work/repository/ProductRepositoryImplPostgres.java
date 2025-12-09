@@ -184,5 +184,3 @@ public class ProductRepositoryImplPostgres implements ProductRepository {
         preparedStatement.setString(6, product.getBrand());
     }
 }
-
-

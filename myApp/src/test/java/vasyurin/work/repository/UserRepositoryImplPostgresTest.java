@@ -8,6 +8,7 @@ import vasyurin.work.dto.User;
 import vasyurin.work.enams.UserRole;
 import vasyurin.work.repository.sql.UserSqlRequestTest;
 import vasyurin.work.repository.sql.UserSqlTestImpl;
+import vasyurin.work.utilites.ConnectionProvider;
 import vasyurin.work.utilites.TestConnectionTemplate;
 
 import java.sql.Connection;
@@ -28,7 +29,7 @@ class UserRepositoryImplPostgresTest {
                     .withUsername("test")
                     .withPassword("test");
     private static final String TEST_SCHEMA = "test_schema";
-    private TestConnectionTemplate testConn;
+    private ConnectionProvider testConn;
     private UserRepositoryImplPostgres repository;
 
     @BeforeAll
@@ -48,10 +49,10 @@ class UserRepositoryImplPostgresTest {
 
     private void createSchemaAndTable() throws SQLException {
         try (Connection conn = testConn.getConnection();
-             Statement stmt = conn.createStatement()) {
+             Statement statement = conn.createStatement()) {
 
-            stmt.execute(UserSqlRequestTest.CREATE_SCHEMA_USERS);
-            stmt.execute(UserSqlRequestTest.CREATE_TABLE_USERS);
+            statement.execute(UserSqlRequestTest.CREATE_SCHEMA_USERS);
+            statement.execute(UserSqlRequestTest.CREATE_TABLE_USERS);
         }
     }
 

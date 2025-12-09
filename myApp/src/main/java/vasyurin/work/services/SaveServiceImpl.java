@@ -1,11 +1,13 @@
 package vasyurin.work.services;
 
 import loggermetricksaspect.annotations.LoggingServices;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import vasyurin.work.dto.Product;
 import vasyurin.work.entitys.ProductEntity;
 import vasyurin.work.repository.ProductRepository;
+import vasyurin.work.services.interfases.CacheService;
 import vasyurin.work.services.interfases.SaveService;
 import vasyurin.work.utilites.ProductMapper;
 
@@ -22,17 +24,12 @@ import java.io.IOException;
  */
 @Slf4j
 @Service
+@AllArgsConstructor
 public class SaveServiceImpl implements SaveService {
 
     private final ProductRepository productRepository;
     private final ProductMapper mapper;
-    private final CacheServiceImpl cacheServiceImpl;
-
-    public SaveServiceImpl(ProductRepository productRepository, ProductMapper mapper, CacheServiceImpl cacheServiceImpl) {
-        this.productRepository = productRepository;
-        this.mapper = mapper;
-        this.cacheServiceImpl = cacheServiceImpl;
-    }
+    private final CacheService cacheServiceImpl;
 
     /**
      * Сохраняет новый продукт или обновляет существующий в базе данных.
@@ -88,4 +85,3 @@ public class SaveServiceImpl implements SaveService {
         cacheServiceImpl.clear();
     }
 }
-

@@ -7,6 +7,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import vasyurin.work.entitys.ProductEntity;
 import vasyurin.work.repository.sql.ProductSqlRequestTest;
 import vasyurin.work.repository.sql.ProductSqlTestImpl;
+import vasyurin.work.utilites.ConnectionProvider;
 import vasyurin.work.utilites.TestConnectionTemplate;
 
 import java.io.IOException;
@@ -29,15 +30,15 @@ class ProductRepositoryImplPostgresTest {
                     .withUsername("test")
                     .withPassword("test");
 
-    private static TestConnectionTemplate testConn;
+    private static ConnectionProvider testConn;
     private ProductRepository repository;
 
     private static void createSchemaAndTable() throws SQLException {
         try (Connection conn = testConn.getConnection();
-             Statement st = conn.createStatement()) {
+             Statement statement = conn.createStatement()) {
 
-            st.execute(ProductSqlRequestTest.CREATE_SCHEME_PRODUCT);
-            st.execute(ProductSqlRequestTest.CREATE_TABLE_PRODUCT);
+            statement.execute(ProductSqlRequestTest.CREATE_SCHEME_PRODUCT);
+            statement.execute(ProductSqlRequestTest.CREATE_TABLE_PRODUCT);
         }
     }
 

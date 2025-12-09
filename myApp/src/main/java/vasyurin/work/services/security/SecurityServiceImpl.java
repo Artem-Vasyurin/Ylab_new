@@ -1,7 +1,8 @@
 package vasyurin.work.services.security;
 
-import loggermetricksaspect.annotations.LoggingServices;
 import io.jsonwebtoken.JwtException;
+import loggermetricksaspect.annotations.LoggingServices;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import vasyurin.work.dto.User;
 import vasyurin.work.repository.UserRepository;
@@ -19,16 +20,11 @@ import java.util.Optional;
  * Предоставляет методы для входа пользователя и извлечения данных из токена.
  */
 @Service
+@AllArgsConstructor
 public class SecurityServiceImpl implements SecurityService {
 
     private final UserRepository userRepository;
     private final JwtService jwtService;
-
-    public SecurityServiceImpl(UserRepository userRepository, JwtService jwtService) {
-        this.userRepository = userRepository;
-        this.jwtService = jwtService;
-
-    }
 
     /**
      * Выполняет аутентификацию пользователя по username и паролю.

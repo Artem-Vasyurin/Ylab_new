@@ -20,6 +20,7 @@ import java.util.Date;
  */
 @Service
 public class JwtServiceImpl implements JwtService {
+
     private static final long EXPIRATION_MS = 24 * 60 * 60 * 1000;
     private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 

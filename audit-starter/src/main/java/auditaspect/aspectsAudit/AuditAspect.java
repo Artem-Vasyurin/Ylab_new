@@ -2,6 +2,7 @@ package auditaspect.aspectsAudit;
 
 import auditaspect.services.AuditLogger;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
@@ -36,14 +37,11 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  */
 @Aspect
 @Slf4j
+@AllArgsConstructor
 public class AuditAspect {
 
     public static final String ANONYMOUS = "ANONYMOUS";
     private final AuditLogger auditLogger;
-
-    public AuditAspect(AuditLogger auditLogger) {
-        this.auditLogger = auditLogger;
-    }
 
     /**
      * После выполнения метода, помеченного {@code @Auditing}, логирует действия пользователя.

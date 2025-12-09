@@ -8,9 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vasyurin.work.dto.Product;
-import vasyurin.work.services.ProductServiceImpl;
-import vasyurin.work.services.ProductValidatorImpl;
-import vasyurin.work.services.SaveServiceImpl;
+import vasyurin.work.services.interfases.ProductService;
+import vasyurin.work.services.interfases.ProductValidator;
+import vasyurin.work.services.interfases.SaveService;
 
 import java.io.IOException;
 import java.util.List;
@@ -26,9 +26,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProductController {
 
-    private final SaveServiceImpl saveServiceImpl;
-    private final ProductServiceImpl productServiceImpl;
-    private final ProductValidatorImpl validator;
+    private final SaveService saveServiceImpl;
+    private final ProductService productServiceImpl;
+    private final ProductValidator validator;
 
     /**
      * Создаёт новый продукт или обновляет существующий,

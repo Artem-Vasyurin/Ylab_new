@@ -42,4 +42,3 @@ public class ConnectionTemplate implements ConnectionProvider {
         }
     }
 }
-

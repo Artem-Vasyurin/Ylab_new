@@ -1,0 +1,26 @@
+2025-12-09 07:10:13.209 TRACE [main] auditaspect.aspectsAudit.AuditAspect - Аудит: пользователь = validUser, метод = ResponseEntity vasyurin.work.controllers.LoginController.login(User)
+2025-12-09 07:10:13.291 TRACE [main] auditaspect.aspectsAudit.AuditAspect - Аудит: пользователь = wrongUser, метод = ResponseEntity vasyurin.work.controllers.LoginController.login(User)
+2025-12-09 07:10:23.268 TRACE [main] auditaspect.aspectsAudit.AuditAspect - Аудит: пользователь = ANONYMOUS, метод = List vasyurin.work.controllers.ProductController.getProducts(Product)
+2025-12-09 07:10:23.318 TRACE [main] auditaspect.aspectsAudit.AuditAspect - Аудит: пользователь = ANONYMOUS, метод = ResponseEntity vasyurin.work.controllers.ProductController.delete(Product)
+2025-12-09 07:10:23.318 TRACE [main] auditaspect.services.AuditLogger - Аудит: удаляемый объект gtin = 1741
+2025-12-09 07:10:23.335 TRACE [main] auditaspect.aspectsAudit.AuditAspect - Аудит: пользователь = ANONYMOUS, метод = ResponseEntity vasyurin.work.controllers.ProductController.create(Product)
+2025-12-09 07:10:23.337 TRACE [main] auditaspect.services.AuditLogger - Аудит: объект = {"gtin":2688,"name":"FWDR","description":"MIW","category":"ACCESSORIES","price":1680.11,"brand":"RRMIEBMO"}
+2025-12-09 07:10:23.345 TRACE [main] auditaspect.aspectsAudit.AuditAspect - Аудит: пользователь = ANONYMOUS, метод = List vasyurin.work.controllers.ProductController.getProducts(Product)
+2025-12-09 07:28:52.630 TRACE [main] auditaspect.aspectsAudit.AuditAspect - Аудит: пользователь = ANONYMOUS, метод = List vasyurin.work.controllers.ProductController.getProducts(Product)
+2025-12-09 07:28:52.682 TRACE [main] auditaspect.aspectsAudit.AuditAspect - Аудит: пользователь = ANONYMOUS, метод = ResponseEntity vasyurin.work.controllers.ProductController.delete(Product)
+2025-12-09 07:28:52.683 TRACE [main] auditaspect.services.AuditLogger - Аудит: удаляемый объект gtin = 7450
+2025-12-09 07:28:52.700 TRACE [main] auditaspect.aspectsAudit.AuditAspect - Аудит: пользователь = ANONYMOUS, метод = ResponseEntity vasyurin.work.controllers.ProductController.create(Product)
+2025-12-09 07:28:52.703 TRACE [main] auditaspect.services.AuditLogger - Аудит: объект = {"gtin":7262,"name":"HKZ","description":"ENWW","category":"ACCESSORIES","price":1518.53,"brand":"NCBORP"}
+2025-12-09 07:28:52.712 TRACE [main] auditaspect.aspectsAudit.AuditAspect - Аудит: пользователь = ANONYMOUS, метод = List vasyurin.work.controllers.ProductController.getProducts(Product)
+2025-12-09 07:29:47.854 TRACE [main] auditaspect.aspectsAudit.AuditAspect - Аудит: пользователь = ANONYMOUS, метод = List vasyurin.work.controllers.ProductController.getProducts(Product)
+2025-12-09 07:29:47.903 TRACE [main] auditaspect.aspectsAudit.AuditAspect - Аудит: пользователь = ANONYMOUS, метод = ResponseEntity vasyurin.work.controllers.ProductController.delete(Product)
+2025-12-09 07:29:47.904 TRACE [main] auditaspect.services.AuditLogger - Аудит: удаляемый объект gtin = 5284
+2025-12-09 07:29:47.920 TRACE [main] auditaspect.aspectsAudit.AuditAspect - Аудит: пользователь = ANONYMOUS, метод = ResponseEntity vasyurin.work.controllers.ProductController.create(Product)
+2025-12-09 07:29:47.921 TRACE [main] auditaspect.services.AuditLogger - Аудит: объект = {"gtin":5855,"name":"HJNQV","description":"EOIRGDU","category":"CLOTHING","price":1955.82,"brand":"WDRGSUT"}
+2025-12-09 07:29:47.931 TRACE [main] auditaspect.aspectsAudit.AuditAspect - Аудит: пользователь = ANONYMOUS, метод = List vasyurin.work.controllers.ProductController.getProducts(Product)
+2025-12-09 07:30:08.975 TRACE [main] auditaspect.aspectsAudit.AuditAspect - Аудит: пользователь = ANONYMOUS, метод = List vasyurin.work.controllers.ProductController.getProducts(Product)
+2025-12-09 07:30:09.030 TRACE [main] auditaspect.aspectsAudit.AuditAspect - Аудит: пользователь = ANONYMOUS, метод = ResponseEntity vasyurin.work.controllers.ProductController.delete(Product)
+2025-12-09 07:30:09.030 TRACE [main] auditaspect.services.AuditLogger - Аудит: удаляемый объект gtin = 9966
+2025-12-09 07:30:09.046 TRACE [main] auditaspect.aspectsAudit.AuditAspect - Аудит: пользователь = ANONYMOUS, метод = ResponseEntity vasyurin.work.controllers.ProductController.create(Product)
+2025-12-09 07:30:09.047 TRACE [main] auditaspect.services.AuditLogger - Аудит: объект = {"gtin":6657,"name":"AKBATF","description":"SPSUCSRC","category":"ELECTRONICS","price":4096.98,"brand":"TGSHRAWDF"}
+2025-12-09 07:30:09.059 TRACE [main] auditaspect.aspectsAudit.AuditAspect - Аудит: пользователь = ANONYMOUS, метод = List vasyurin.work.controllers.ProductController.getProducts(Product)

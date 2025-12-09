@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import vasyurin.work.dto.Product;
 import vasyurin.work.entitys.ProductEntity;
 import vasyurin.work.repository.ProductRepository;
+import vasyurin.work.services.interfases.CacheService;
+import vasyurin.work.services.interfases.ProductService;
 import vasyurin.work.utilites.ProductMapper;
 
 import java.util.List;
@@ -16,16 +18,16 @@ import static org.mockito.Mockito.*;
 
 class ProductServiceImplTest {
 
-    private ProductServiceImpl productServiceImpl;
+    private ProductService productServiceImpl;
     private ProductRepository productRepositoryMock;
     private ProductMapper mapperMock;
-    private CacheServiceImpl cacheServiceImplMock;
+    private CacheService cacheServiceImplMock;
 
     @BeforeEach
     void setUp() {
         productRepositoryMock = mock(ProductRepository.class);
         mapperMock = mock(ProductMapper.class);
-        cacheServiceImplMock = mock(CacheServiceImpl.class);
+        cacheServiceImplMock = mock(CacheService.class);
 
         productServiceImpl = new ProductServiceImpl(productRepositoryMock, mapperMock, cacheServiceImplMock);
     }

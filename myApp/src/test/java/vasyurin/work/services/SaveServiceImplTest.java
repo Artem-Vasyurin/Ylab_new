@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import vasyurin.work.dto.Product;
 import vasyurin.work.entitys.ProductEntity;
 import vasyurin.work.repository.ProductRepository;
+import vasyurin.work.services.interfases.CacheService;
+import vasyurin.work.services.interfases.SaveService;
 import vasyurin.work.utilites.ProductMapper;
 
 import java.io.IOException;
@@ -16,22 +18,22 @@ import static org.mockito.Mockito.*;
 
 class SaveServiceImplTest {
 
-    private SaveServiceImpl saveServiceImpl;
+    private SaveService saveServiceImpl;
     private ProductRepository productRepositoryMock;
     private ProductMapper mapperMock;
-    private CacheServiceImpl cacheServiceImplMock;
+    private CacheService cacheServiceImplMock;
 
     @BeforeEach
     void setUp() {
         productRepositoryMock = mock(ProductRepository.class);
         mapperMock = mock(ProductMapper.class);
-        cacheServiceImplMock = mock(CacheServiceImpl.class);
+        cacheServiceImplMock = mock(CacheService.class);
 
         saveServiceImpl = new SaveServiceImpl(productRepositoryMock, mapperMock, cacheServiceImplMock);
     }
 
     @Test
-    @DisplayName("Сохраняем новый продукт с Instancio")
+    @DisplayName("Сохраняем новый продукт")
     void testSave() throws IOException {
         Product dto = Instancio.create(Product.class);
         ProductEntity entity = Instancio.create(ProductEntity.class);

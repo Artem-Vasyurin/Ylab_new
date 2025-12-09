@@ -14,9 +14,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import vasyurin.work.dto.Product;
-import vasyurin.work.services.ProductServiceImpl;
-import vasyurin.work.services.ProductValidatorImpl;
-import vasyurin.work.services.SaveServiceImpl;
+import vasyurin.work.services.interfases.ProductService;
+import vasyurin.work.services.interfases.ProductValidator;
+import vasyurin.work.services.interfases.SaveService;
 
 import java.util.Collections;
 import java.util.List;
@@ -39,13 +39,13 @@ class ProductControllerTest {
     private ObjectMapper objectMapper;
 
     @MockBean
-    private SaveServiceImpl saveServiceImpl;
+    private SaveService saveServiceImpl;
 
     @MockBean
-    private ProductServiceImpl productServiceImpl;
+    private ProductService productServiceImpl;
 
     @MockBean
-    private ProductValidatorImpl validator;
+    private ProductValidator validator;
 
     @Test
     @DisplayName("Создание продукта должно возвращать статус 201 и тело продукта")

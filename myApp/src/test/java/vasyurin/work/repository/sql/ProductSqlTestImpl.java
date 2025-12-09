@@ -1,16 +1,19 @@
 package vasyurin.work.repository.sql;
 
-import org.springframework.stereotype.Service;
-
 /**
- * Тестовая реализация {@link ProductSqlProvider}, предоставляющая SQL-запросы
+ * Тестовая реализация интерфейса {@link ProductSqlProvider}, предоставляющая SQL-запросы
  * для работы с продуктами в тестовой среде.
+ * <p>
+ * Этот класс возвращает строки SQL-запросов, определенные в {@link ProductSqlRequestTest}.
+ * Используется для тестирования или работы с тестовой базой данных.
+ * </p>
  */
-@Service
 public class ProductSqlTestImpl implements ProductSqlProvider {
 
     /**
      * Возвращает SQL-запрос для вставки нового продукта (тестовый).
+     *
+     * @return строка SQL для вставки продукта ({@link ProductSqlRequestTest#INSERT_PRODUCT})
      */
     @Override
     public String getInsert() {
@@ -18,7 +21,9 @@ public class ProductSqlTestImpl implements ProductSqlProvider {
     }
 
     /**
-     * Возвращает SQL-запрос для обновления продукта (тестовый).
+     * Возвращает SQL-запрос для обновления информации о продукте (тестовый).
+     *
+     * @return строка SQL для обновления продукта ({@link ProductSqlRequestTest#UPDATE_PRODUCT})
      */
     @Override
     public String getUpdate() {
@@ -27,6 +32,8 @@ public class ProductSqlTestImpl implements ProductSqlProvider {
 
     /**
      * Возвращает SQL-запрос для выборки продуктов с фильтром (тестовый).
+     *
+     * @return строка SQL для выборки продуктов с фильтром ({@link ProductSqlRequestTest#SELECT_FILTER_PRODUCT})
      */
     @Override
     public String getSelectFiltered() {
@@ -35,6 +42,8 @@ public class ProductSqlTestImpl implements ProductSqlProvider {
 
     /**
      * Возвращает SQL-запрос для удаления продукта (тестовый).
+     *
+     * @return строка SQL для удаления продукта ({@link ProductSqlRequestTest#DELETE_PRODUCT})
      */
     @Override
     public String getDelete() {

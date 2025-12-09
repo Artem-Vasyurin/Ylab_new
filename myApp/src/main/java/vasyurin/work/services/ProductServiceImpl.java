@@ -1,10 +1,12 @@
 package vasyurin.work.services;
 
 import loggermetricksaspect.annotations.LoggingServices;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import vasyurin.work.dto.Product;
 import vasyurin.work.entitys.ProductEntity;
 import vasyurin.work.repository.ProductRepository;
+import vasyurin.work.services.interfases.CacheService;
 import vasyurin.work.services.interfases.ProductService;
 import vasyurin.work.utilites.ProductMapper;
 
@@ -19,17 +21,12 @@ import java.util.List;
  * и {@link CacheServiceImpl} для кэширования результатов.
  */
 @Service
+@AllArgsConstructor
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final ProductMapper mapper;
-    private final CacheServiceImpl cacheServiceImpl;
-
-    public ProductServiceImpl(ProductRepository productRepository, ProductMapper mapper, CacheServiceImpl cacheServiceImpl) {
-        this.productRepository = productRepository;
-        this.mapper = mapper;
-        this.cacheServiceImpl = cacheServiceImpl;
-    }
+    private final CacheService cacheServiceImpl;
 
     /**
      * Возвращает список продуктов, удовлетворяющих заданному фильтру.

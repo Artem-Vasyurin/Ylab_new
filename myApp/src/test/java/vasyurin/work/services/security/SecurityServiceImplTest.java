@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import vasyurin.work.dto.User;
 import vasyurin.work.repository.UserRepository;
 import vasyurin.work.services.interfases.JwtService;
+import vasyurin.work.services.interfases.SecurityService;
 
 import java.util.Optional;
 
@@ -16,7 +17,7 @@ import static org.mockito.Mockito.*;
 
 class SecurityServiceImplTest {
 
-    private SecurityServiceImpl securityService;
+    private SecurityService securityService;
     private UserRepository userRepositoryMock;
     private JwtService jwtServiceMock;
 

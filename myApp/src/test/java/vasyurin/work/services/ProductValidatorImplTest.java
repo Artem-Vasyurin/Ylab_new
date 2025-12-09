@@ -4,6 +4,7 @@ import org.instancio.Instancio;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import vasyurin.work.dto.Product;
+import vasyurin.work.services.interfases.ProductValidator;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -14,7 +15,7 @@ import static org.instancio.Select.field;
 
 class ProductValidatorImplTest {
 
-    private final ProductValidatorImpl validator = new ProductValidatorImpl();
+    private final ProductValidator validator = new ProductValidatorImpl();
 
     @Test
     @DisplayName("Валидный продукт не выдаёт ошибок")

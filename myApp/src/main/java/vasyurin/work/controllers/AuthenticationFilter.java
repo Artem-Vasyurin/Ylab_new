@@ -3,6 +3,7 @@ package vasyurin.work.controllers;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import vasyurin.work.dto.User;
@@ -22,13 +23,10 @@ import java.io.IOException;
  */
 @Component
 @Profile("!test")
+@AllArgsConstructor
 public class AuthenticationFilter implements Filter {
 
     private final SecurityService securityService;
-
-    public AuthenticationFilter(SecurityService securityService) {
-        this.securityService = securityService;
-    }
 
     /**
      * Выполняет проверку токена в заголовке Authorization.

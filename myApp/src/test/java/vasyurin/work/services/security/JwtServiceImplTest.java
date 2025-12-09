@@ -7,6 +7,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import vasyurin.work.dto.User;
 import vasyurin.work.enams.UserRole;
+import vasyurin.work.services.interfases.JwtService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.instancio.Select.field;
@@ -14,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class JwtServiceImplTest {
 
-    private JwtServiceImpl jwtService;
+    private JwtService jwtService;
 
     @BeforeEach
     void setUp() {
