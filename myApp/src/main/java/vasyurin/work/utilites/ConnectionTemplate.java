@@ -7,6 +7,14 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+/**
+ * Утилитный компонент для получения соединения с PostgreSQL.
+ * <p>
+ * Использует параметры подключения из настроек Spring:
+ * {@code db.url}, {@code db.username}, {@code db.password}.
+ * <p>
+ * В случае ошибки подключения выбрасывает {@link RuntimeException}.
+ */
 @Component
 public class ConnectionTemplate {
     @Value("${db.url}")
@@ -18,6 +26,12 @@ public class ConnectionTemplate {
     @Value("${db.password}")
     private String password;
 
+    /**
+     * Получает новое соединение с базой данных PostgreSQL.
+     *
+     * @return объект {@link Connection}
+     * @throws RuntimeException если не удалось установить соединение или найти драйвер
+     */
     public Connection getConnection() {
         try {
             Class.forName("org.postgresql.Driver");

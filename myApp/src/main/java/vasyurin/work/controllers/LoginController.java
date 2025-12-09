@@ -1,6 +1,6 @@
 package vasyurin.work.controllers;
 
-import annotationsAudit.Auditing;
+import auditaspect.annotationsAudit.Auditing;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +21,15 @@ public class LoginController {
 
     private final SecurityService securityService;
 
+    /**
+     * Выполняет аутентификацию пользователя.
+     * <p>
+     * При корректных логине и пароле возвращает JWT-токен.
+     * При ошибке аутентификации возвращает статус 401.
+     *
+     * @param loginRequest объект с учётными данными пользователя
+     * @return JWT-токен или сообщение об ошибке
+     */
     @Auditing
     @PostMapping(path = "/login", consumes = "application/json", produces = "application/json")
     public ResponseEntity<?> login(@RequestBody User loginRequest) {

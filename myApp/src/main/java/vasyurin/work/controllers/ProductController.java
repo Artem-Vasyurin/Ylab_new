@@ -1,6 +1,6 @@
 package vasyurin.work.controllers;
 
-import annotationsAudit.Auditing;
+import auditaspect.annotationsAudit.Auditing;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +15,11 @@ import vasyurin.work.services.SaveServiceImpl;
 import java.io.IOException;
 import java.util.List;
 
+
+/**
+ * REST-контроллер для операций над продуктами:
+ * создание, удаление и получение списка по фильтру.
+ */
 @Slf4j
 @RestController
 @RequestMapping("/")
@@ -25,6 +30,14 @@ public class ProductController {
     private final ProductServiceImpl productServiceImpl;
     private final ProductValidatorImpl validator;
 
+    /**
+     * Создаёт новый продукт или обновляет существующий,
+     * если продукт с таким идентификатором уже есть.
+     *
+     * @param product продукт для создания или обновления
+     * @return сохранённый продукт со статусом 201
+     * @throws IOException если произошла ошибка записи
+     */
     @Auditing
     @SecurityRequirement(name = "bearerAuth")
     @PostMapping(value = "/product/create", consumes = "application/json", produces = "application/json")
@@ -39,6 +52,13 @@ public class ProductController {
                 .body(product);
     }
 
+    /**
+     * Удаляет указанный продукт.
+     *
+     * @param product продукт, который нужно удалить
+     * @return статус 204 (контента нет)
+     * @throws IOException если произошла ошибка удаления
+     */
     @Auditing
     @SecurityRequirement(name = "bearerAuth")
     @DeleteMapping(value = "/product/delete", consumes = "application/json")
@@ -49,6 +69,13 @@ public class ProductController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Возвращает список продуктов, соответствующих фильтру.
+     *
+     * @param filter объект фильтрации (например, категория, цена и т.д.)
+     * @return список продуктов, удовлетворяющих фильтру
+     * @throws IllegalArgumentException если фильтр некорректен
+     */
     @PostMapping(value = "/product/get", consumes = "application/json", produces = "application/json")
     @SecurityRequirement(name = "bearerAuth")
     @Auditing
@@ -59,5 +86,4 @@ public class ProductController {
         }
         return productServiceImpl.getFilteredProducts(filter);
     }
-
 }

@@ -53,6 +53,15 @@ public class LiquibaseConfig {
         this.connectionTemplate = connectionTemplate;
     }
 
+    /**
+     * Запускает миграции базы данных с помощью Liquibase.
+     * <p>
+     * Создаёт схемы по умолчанию, инициализирует Liquibase с заданным {@code changeLog}
+     * и применяет миграции.
+     *
+     * @throws IllegalStateException если не найдены обязательные свойства конфигурации
+     * @throws RuntimeException      если миграции не удалось выполнить
+     */
     public void runLiquibase() {
         log.info("Starting Liquibase ...");
 

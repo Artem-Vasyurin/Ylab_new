@@ -9,10 +9,30 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Реализация {@link ProductValidator} для проверки корректности данных продукта.
+ * <p>
+ * Проверяет ограничения по длине названия, описания и бренда,
+ * а также положительность цены.
+ */
 @Component
 @NoArgsConstructor
 public class ProductValidatorImpl implements ProductValidator {
 
+    /**
+     * Валидирует продукт по заданным правилам.
+     * <p>
+     * Проверяет:
+     * <ul>
+     *     <li>Название продукта: не более 50 символов</li>
+     *     <li>Описание продукта: не более 255 символов</li>
+     *     <li>Бренд продукта: не более 50 символов</li>
+     *     <li>Цена продукта: не может быть отрицательной</li>
+     * </ul>
+     *
+     * @param product продукт для проверки
+     * @return список сообщений об ошибках. Пустой список, если продукт корректен.
+     */
     @Override
     public List<String> validate(Product product) {
         List<String> errors = new ArrayList<>();

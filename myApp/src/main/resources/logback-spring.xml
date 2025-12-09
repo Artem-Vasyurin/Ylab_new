@@ -63,11 +63,11 @@
         <appender-ref ref="FILE"/>
     </logger>
 
-    <logger name="aspectsAudit.AuditAspect" level="trace" additivity="false">
+    <logger name="auditaspect" level="trace" additivity="false">
         <appender-ref ref="AUDIT_FILE"/>
     </logger>
 
-    <logger name="aspects.LoggingAspect" level="trace" additivity="false">
+    <logger name="loggermetricksaspect.aspects.LoggingAspect" level="trace" additivity="false">
         <appender-ref ref="LOGGING_FILE"/>
     </logger>
 

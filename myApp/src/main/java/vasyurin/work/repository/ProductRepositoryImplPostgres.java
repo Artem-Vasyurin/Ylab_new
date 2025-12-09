@@ -11,6 +11,15 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Реализация репозитория продуктов для PostgreSQL.
+ * <p>
+ * Обеспечивает сохранение, обновление, удаление и поиск продуктов
+ * через JDBC с использованием {@link ConnectionTemplate}.
+ * <p>
+ * Если продукт с таким GTIN уже существует — {@link #save(ProductEntity)} обновляет его,
+ * иначе создаёт новый.
+ */
 @Slf4j
 @Repository
 public class ProductRepositoryImplPostgres implements ProductRepository {
@@ -21,6 +30,14 @@ public class ProductRepositoryImplPostgres implements ProductRepository {
         this.connectionTemplate = connectionTemplate;
     }
 
+    /**
+     * Сохраняет продукт в базе данных.
+     * <p>
+     * Если продукт с таким GTIN уже существует, обновляет его.
+     * Иначе вставляет новый продукт.
+     *
+     * @param product продукт для сохранения или обновления
+     */
     @Override
     public void save(ProductEntity product) {
 
@@ -74,6 +91,14 @@ public class ProductRepositoryImplPostgres implements ProductRepository {
         }
     }
 
+    /**
+     * Находит продукты, удовлетворяющие заданному фильтру.
+     * <p>
+     * Фильтр основан на полях {@link ProductEntity} — gtin, name, description, category, price, brand.
+     *
+     * @param filter объект с критериями фильтрации
+     * @return список продуктов, соответствующих фильтру
+     */
     @Override
     public List<ProductEntity> findFilteredProducts(ProductEntity filter) {
 
@@ -128,7 +153,11 @@ public class ProductRepositoryImplPostgres implements ProductRepository {
         }
     }
 
-
+    /**
+     * Удаляет продукт по GTIN.
+     *
+     * @param gtin идентификатор продукта для удаления
+     */
     @Override
     public void delete(Integer gtin) {
         String sql = ProductSql.DELETE_PRODUCT;
@@ -164,7 +193,6 @@ public class ProductRepositoryImplPostgres implements ProductRepository {
         preparedStatement.setBigDecimal(5, product.getPrice());
         preparedStatement.setString(6, product.getBrand());
     }
-
 }
 
 

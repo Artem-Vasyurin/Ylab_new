@@ -10,6 +10,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Реализация репозитория пользователей для PostgreSQL.
+ * <p>
+ * Предоставляет методы для сохранения, обновления, поиска и получения всех пользователей
+ * через JDBC с использованием {@link ConnectionTemplate}.
+ * <p>
+ * При сохранении {@link #save(User)} проверяет, существует ли пользователь с таким username,
+ * чтобы обновить его данные или вставить новый.
+ */
 @Repository
 public class UserRepositoryImplPostgres implements UserRepository {
 
@@ -19,6 +28,14 @@ public class UserRepositoryImplPostgres implements UserRepository {
         this.connectionTemplate = connectionTemplate;
     }
 
+    /**
+     * Сохраняет пользователя в базе данных.
+     * <p>
+     * Если пользователь с указанным username уже существует — обновляет его данные.
+     * Иначе вставляет нового пользователя.
+     *
+     * @param user пользователь для сохранения или обновления
+     */
     @Override
     public void save(User user) {
         Optional<User> existing = findByUsername(user.getUsername());
@@ -63,6 +80,12 @@ public class UserRepositoryImplPostgres implements UserRepository {
         }
     }
 
+    /**
+     * Находит пользователя по username.
+     *
+     * @param username имя пользователя для поиска
+     * @return Optional с найденным пользователем или пустой, если пользователь не найден
+     */
     @Override
     public Optional<User> findByUsername(String username) {
         String sql = UserSql.SELECT_BY_USERNAME_USER;
@@ -88,6 +111,11 @@ public class UserRepositoryImplPostgres implements UserRepository {
         return Optional.empty();
     }
 
+    /**
+     * Возвращает список всех пользователей в базе данных.
+     *
+     * @return список пользователей
+     */
     @Override
     public List<User> getAll() {
         List<User> users = new ArrayList<>();
