@@ -4,9 +4,11 @@ import org.instancio.Instancio;
 import org.junit.jupiter.api.*;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import vasyurin.work.utilites.TestConnectionTemplate;
 import vasyurin.work.dto.User;
 import vasyurin.work.enams.UserRole;
+import vasyurin.work.repository.sql.UserSqlRequestTest;
+import vasyurin.work.repository.sql.UserSqlTestImpl;
+import vasyurin.work.utilites.TestConnectionTemplate;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -25,18 +27,9 @@ class UserRepositoryImplPostgresTest {
                     .withDatabaseName("testdb")
                     .withUsername("test")
                     .withPassword("test");
-
-    private static TestConnectionTemplate testConn;
-    private UserRepository repository;
-
-    private static void createSchemaAndTables() throws SQLException {
-        try (Connection connection = testConn.getConnection();
-             Statement statement = connection.createStatement()) {
-
-            statement.execute(UserSqlTest.CREATE_SCHEMA_USERS);
-            statement.execute(UserSqlTest.CREATE_TABLE_USERS);
-        }
-    }
+    private static final String TEST_SCHEMA = "test_schema";
+    private TestConnectionTemplate testConn;
+    private UserRepositoryImplPostgres repository;
 
     @BeforeAll
     void setup() throws SQLException {
@@ -48,23 +41,32 @@ class UserRepositoryImplPostgresTest {
                 POSTGRES.getPassword()
         );
 
-        repository = new UserRepositoryForTest(testConn);
+        repository = new UserRepositoryImplPostgres(testConn, new UserSqlTestImpl());
 
-        createSchemaAndTables();
+        createSchemaAndTable();
+    }
+
+    private void createSchemaAndTable() throws SQLException {
+        try (Connection conn = testConn.getConnection();
+             Statement stmt = conn.createStatement()) {
+
+            stmt.execute(UserSqlRequestTest.CREATE_SCHEMA_USERS);
+            stmt.execute(UserSqlRequestTest.CREATE_TABLE_USERS);
+        }
     }
 
     @BeforeEach
     void cleanTable() throws SQLException {
         try (Connection conn = testConn.getConnection();
-             Statement st = conn.createStatement()) {
+             Statement stmt = conn.createStatement()) {
 
-            st.execute(UserSqlTest.DELETE_TABLE_USERS);
+            stmt.execute("DELETE FROM " + TEST_SCHEMA + ".users");
         }
     }
 
     @Test
-    @DisplayName("Добавление пользователя и проверка существования")
-    void testInsert() throws Exception {
+    @DisplayName("Добавление пользователя и проверка")
+    void testInsert() {
         User user = Instancio.create(User.class);
         user.setUsername("test");
         user.setPassword("123");
@@ -73,25 +75,23 @@ class UserRepositoryImplPostgresTest {
         repository.save(user);
 
         Optional<User> found = repository.findByUsername("test");
-
         assertThat(found).isPresent();
         assertThat(found.get().getPassword()).isEqualTo("123");
         assertThat(found.get().getRole()).isEqualTo(UserRole.USER);
     }
 
     @Test
-    @DisplayName("Обновление существующего пользователя и проверка изменений")
-    void testUpdate() throws Exception {
+    @DisplayName("Обновление пользователя")
+    void testUpdate() {
         User user = Instancio.create(User.class);
+        user.setUsername("john");
         repository.save(user);
 
-        user.setUsername("john");
         user.setPassword("pass2");
         user.setRole(UserRole.ADMIN);
         repository.save(user);
 
-        var found = repository.findByUsername("john");
-
+        Optional<User> found = repository.findByUsername("john");
         assertThat(found).isPresent();
         assertThat(found.get().getPassword()).isEqualTo("pass2");
         assertThat(found.get().getRole()).isEqualTo(UserRole.ADMIN);
@@ -99,7 +99,7 @@ class UserRepositoryImplPostgresTest {
 
     @Test
     @DisplayName("Получение всех пользователей")
-    void testGetAll() throws Exception {
+    void testGetAll() {
         User user1 = Instancio.create(User.class);
         user1.setUsername("user1");
         User user2 = Instancio.create(User.class);
@@ -108,11 +108,9 @@ class UserRepositoryImplPostgresTest {
         repository.save(user1);
         repository.save(user2);
 
-        List<User> allUsers = repository.getAll();
-
-        assertThat(allUsers).hasSize(2)
+        List<User> all = repository.getAll();
+        assertThat(all).hasSize(2)
                 .extracting(User::getUsername)
                 .containsExactlyInAnyOrder("user1", "user2");
     }
-
 }

@@ -1,10 +1,12 @@
 package vasyurin.work.repository;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import vasyurin.work.enams.ProductCategory;
 import vasyurin.work.entitys.ProductEntity;
-import vasyurin.work.utilites.ConnectionTemplate;
+import vasyurin.work.repository.sql.ProductSqlProvider;
+import vasyurin.work.utilites.ConnectionProvider;
 
 import java.math.BigDecimal;
 import java.sql.*;
@@ -15,20 +17,18 @@ import java.util.List;
  * Реализация репозитория продуктов для PostgreSQL.
  * <p>
  * Обеспечивает сохранение, обновление, удаление и поиск продуктов
- * через JDBC с использованием {@link ConnectionTemplate}.
+ * через JDBC с использованием {@link ConnectionProvider}.
  * <p>
  * Если продукт с таким GTIN уже существует — {@link #save(ProductEntity)} обновляет его,
  * иначе создаёт новый.
  */
 @Slf4j
 @Repository
+@AllArgsConstructor
 public class ProductRepositoryImplPostgres implements ProductRepository {
 
-    private final ConnectionTemplate connectionTemplate;
-
-    public ProductRepositoryImplPostgres(ConnectionTemplate connectionTemplate) {
-        this.connectionTemplate = connectionTemplate;
-    }
+    private final ConnectionProvider connectionTemplate;
+    private final ProductSqlProvider sql;
 
     /**
      * Сохраняет продукт в базе данных.
@@ -56,10 +56,8 @@ public class ProductRepositoryImplPostgres implements ProductRepository {
     }
 
     private void insert(ProductEntity product) {
-        String sql = ProductSql.INSERT_PRODUCT;
-
         try (Connection conn = connectionTemplate.getConnection();
-             PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
+             PreparedStatement preparedStatement = conn.prepareStatement(sql.getInsert())) {
 
             fillInsertParameters(product, preparedStatement);
             try (ResultSet rs = preparedStatement.executeQuery()) {
@@ -70,15 +68,12 @@ public class ProductRepositoryImplPostgres implements ProductRepository {
         } catch (SQLException e) {
             log.error(e.getMessage());
             throw new RuntimeException("Ошибка вставки продукта", e);
-
         }
     }
 
     private void update(ProductEntity product) {
-        String sql = ProductSql.UPDATE_PRODUCT;
-
         try (Connection conn = connectionTemplate.getConnection();
-             PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
+             PreparedStatement preparedStatement = conn.prepareStatement(sql.getUpdate())) {
 
             fillInsertParameters(product, preparedStatement);
             preparedStatement.setInt(7, product.getId());
@@ -101,11 +96,8 @@ public class ProductRepositoryImplPostgres implements ProductRepository {
      */
     @Override
     public List<ProductEntity> findFilteredProducts(ProductEntity filter) {
-
-        String sql = ProductSql.SELECT_FILTER_PRODUCT;
-
         try (Connection conn = connectionTemplate.getConnection();
-             PreparedStatement st = conn.prepareStatement(sql)) {
+             PreparedStatement st = conn.prepareStatement(sql.getSelectFiltered())) {
 
             Object[] values = new Object[]{
                     filter.getGtin(), filter.getGtin(),
@@ -160,10 +152,8 @@ public class ProductRepositoryImplPostgres implements ProductRepository {
      */
     @Override
     public void delete(Integer gtin) {
-        String sql = ProductSql.DELETE_PRODUCT;
-
         try (Connection conn = connectionTemplate.getConnection();
-             PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
+             PreparedStatement preparedStatement = conn.prepareStatement(sql.getDelete())) {
 
             preparedStatement.setInt(1, gtin);
             preparedStatement.executeUpdate();

@@ -16,7 +16,7 @@ import java.sql.SQLException;
  * В случае ошибки подключения выбрасывает {@link RuntimeException}.
  */
 @Component
-public class ConnectionTemplate {
+public class ConnectionTemplate implements ConnectionProvider {
     @Value("${db.url}")
     private String url;
 
@@ -32,6 +32,7 @@ public class ConnectionTemplate {
      * @return объект {@link Connection}
      * @throws RuntimeException если не удалось установить соединение или найти драйвер
      */
+    @Override
     public Connection getConnection() {
         try {
             Class.forName("org.postgresql.Driver");

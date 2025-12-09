@@ -1,9 +1,11 @@
 package vasyurin.work.repository;
 
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
 import vasyurin.work.dto.User;
 import vasyurin.work.enams.UserRole;
-import vasyurin.work.utilites.ConnectionTemplate;
+import vasyurin.work.repository.sql.UserSqlProvider;
+import vasyurin.work.utilites.ConnectionProvider;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -14,19 +16,17 @@ import java.util.Optional;
  * Реализация репозитория пользователей для PostgreSQL.
  * <p>
  * Предоставляет методы для сохранения, обновления, поиска и получения всех пользователей
- * через JDBC с использованием {@link ConnectionTemplate}.
+ * через JDBC с использованием {@link ConnectionProvider}.
  * <p>
  * При сохранении {@link #save(User)} проверяет, существует ли пользователь с таким username,
  * чтобы обновить его данные или вставить новый.
  */
 @Repository
+@AllArgsConstructor
 public class UserRepositoryImplPostgres implements UserRepository {
 
-    private final ConnectionTemplate connectionTemplate;
-
-    public UserRepositoryImplPostgres(ConnectionTemplate connectionTemplate) {
-        this.connectionTemplate = connectionTemplate;
-    }
+    private final ConnectionProvider connectionTemplate;
+    private final UserSqlProvider sql;
 
     /**
      * Сохраняет пользователя в базе данных.
@@ -47,10 +47,8 @@ public class UserRepositoryImplPostgres implements UserRepository {
     }
 
     private void insert(User user) {
-        String sql = UserSql.INSERT_USER;
         try (Connection conn = connectionTemplate.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
+             PreparedStatement ps = conn.prepareStatement(sql.getInsert())) {
             ps.setString(1, user.getUsername());
             ps.setString(2, user.getPassword());
             ps.setString(3, user.getRole().name());
@@ -64,10 +62,8 @@ public class UserRepositoryImplPostgres implements UserRepository {
     }
 
     private void update(User user) {
-        String sql = UserSql.UPDATE_USER;
         try (Connection conn = connectionTemplate.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
+             PreparedStatement ps = conn.prepareStatement(sql.getUpdate())) {
             ps.setString(1, user.getPassword());
             ps.setString(2, user.getRole().name());
             ps.setString(3, user.getToken());
@@ -88,10 +84,8 @@ public class UserRepositoryImplPostgres implements UserRepository {
      */
     @Override
     public Optional<User> findByUsername(String username) {
-        String sql = UserSql.SELECT_BY_USERNAME_USER;
         try (Connection conn = connectionTemplate.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
+             PreparedStatement ps = conn.prepareStatement(sql.getSelectByUsername())) {
             ps.setString(1, username);
             ResultSet rs = ps.executeQuery();
 
@@ -119,10 +113,9 @@ public class UserRepositoryImplPostgres implements UserRepository {
     @Override
     public List<User> getAll() {
         List<User> users = new ArrayList<>();
-        String sql = UserSql.SELECT_ALL_USER;
         try (Connection conn = connectionTemplate.getConnection();
              Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+             ResultSet rs = stmt.executeQuery(sql.getSelectAll())) {
 
             while (rs.next()) {
                 users.add(new User(

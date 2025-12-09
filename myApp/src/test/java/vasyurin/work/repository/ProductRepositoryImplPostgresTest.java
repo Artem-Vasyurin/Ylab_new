@@ -5,6 +5,8 @@ import org.junit.jupiter.api.*;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import vasyurin.work.entitys.ProductEntity;
+import vasyurin.work.repository.sql.ProductSqlRequestTest;
+import vasyurin.work.repository.sql.ProductSqlTestImpl;
 import vasyurin.work.utilites.TestConnectionTemplate;
 
 import java.io.IOException;
@@ -34,8 +36,8 @@ class ProductRepositoryImplPostgresTest {
         try (Connection conn = testConn.getConnection();
              Statement st = conn.createStatement()) {
 
-            st.execute(ProductSqlTest.CREATE_SCHEME_PRODUCT);
-            st.execute(ProductSqlTest.CREATE_TABLE_PRODUCT);
+            st.execute(ProductSqlRequestTest.CREATE_SCHEME_PRODUCT);
+            st.execute(ProductSqlRequestTest.CREATE_TABLE_PRODUCT);
         }
     }
 
@@ -49,7 +51,7 @@ class ProductRepositoryImplPostgresTest {
                 POSTGRES.getPassword()
         );
 
-        repository = new ProductRepositoryForTest(testConn);
+        repository = new ProductRepositoryImplPostgres(testConn, new ProductSqlTestImpl());
 
         createSchemaAndTable();
     }
@@ -58,7 +60,7 @@ class ProductRepositoryImplPostgresTest {
     void cleanTable() throws SQLException {
         try (Connection conn = testConn.getConnection();
              Statement st = conn.createStatement()) {
-            st.execute(ProductSqlTest.TRUNCATE_TABLE_TEST_SCHEMA_PRODUCT);
+            st.execute(ProductSqlRequestTest.TRUNCATE_TABLE_TEST_SCHEMA_PRODUCT);
         }
     }
 

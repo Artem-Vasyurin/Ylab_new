@@ -2,19 +2,8 @@ db:
   url: jdbc:postgresql://postgres:5432/mymarket_service
   username: artem
   password: 123
-  schema: app_schema
-  serviceSchema: service_schema
-
-  usernameTest: maxim
-  passwordTest: 1234
-  schemaTest: test_schema
-  serviceSchemaTest: service_schema_test
 
 liquibase:
   changeLog: db/changelog/db.changelog-master.xml
   defaultSchema: app_schema
   liquibaseSchemaName: service_schema
-
-  changeLogTest: db/changelog/db.changelog-master.xml
-  defaultSchemaTest: app_schema
-  liquibaseSchemaNameTest: service_schema
