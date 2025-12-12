@@ -22,9 +22,13 @@ public class SaveServiceTest {
     private ProductMapper mapperMock;
     private CacheService cacheServiceMock;
 
+    public SaveServiceTest(SaveService saveService) {
+        this.saveService = saveService;
+
+    }
+
     @BeforeEach
     void setUp() {
-        saveService = SaveService.getInstance();
 
         productRepositoryMock = mock(ProductRepository.class);
         auditServiceMock = mock(AuditServiceImpl.class);

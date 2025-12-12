@@ -1,23 +1,30 @@
 package vasyurin.work.utilites;
 
-import vasyurin.work.configurations.ConfigurationReader;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+@Component
 public class ConnectionTemplate {
+    @Value("${db.url}")
+    private String url;
 
-    private static final String URL = ConfigurationReader.readConfiguration().db().url();
-    private static final String USER = ConfigurationReader.readConfiguration().db().username();
-    private static final String PASSWORD = ConfigurationReader.readConfiguration().db().password();
+    @Value("${db.username}")
+    private String username;
 
-    public static Connection getConnection() {
+    @Value("${db.password}")
+    private String password;
+
+    public Connection getConnection() {
         try {
             Class.forName("org.postgresql.Driver");
-            return DriverManager.getConnection(URL, USER, PASSWORD);
+            return DriverManager.getConnection(url, username, password);
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException("Ошибка подключения к базе данных", e);
         }
     }
 }
+
